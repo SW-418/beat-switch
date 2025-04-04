@@ -36,7 +36,6 @@ export default function Home() {
   useEffect(() => {
     const codeVerifier = window.localStorage.getItem('code_verifier');
     if (code && codeVerifier) {
-      // window.location.search = '';
       const url = new URL('/api/v1/spotify/token', window.location.origin);
       url.searchParams.set('code', code);
       url.searchParams.set('verifier', codeVerifier);
@@ -49,10 +48,9 @@ export default function Home() {
           },
         })
         setTokenRetrieved(true);
+        window.localStorage.removeItem('code_verifier');
       }
       response();
-      window.localStorage.removeItem('code_verifier');
-      // TODO: Handle unsuccessful response
     }
   }, [code]);
 
@@ -74,7 +72,7 @@ export default function Home() {
         setLoggedIn(true);
       }
       response();
-  }, []);
+  }, [tokenRetrieved]);
 
   useEffect(() => {
     if (profile.displayName) {
@@ -83,7 +81,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto">
+    <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
       <div className="top-0 absolute pt-4">
         {loggedIn && <p>Welcome {profile.displayName} 👋</p>}
       </div>
