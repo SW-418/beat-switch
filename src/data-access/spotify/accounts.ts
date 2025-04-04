@@ -1,5 +1,5 @@
 import { BaseApiClient } from "../base";
-import { sha256Hash, base64encode } from "../../../utils/auth";
+import { sha256Hash, base64encode } from "@/utils/auth";
 import TokenResponse from "./responses/token-response";
 import { getCodeVerifier } from "@/utils/auth/code-verifier";
 import { AuthResponse } from "./responses/auth-response";

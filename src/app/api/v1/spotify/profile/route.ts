@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import spotifyClient from "@/services/api/spotify/users";
+import spotifyClient from "@/data-access/spotify/users";
 
 async function GET(request: NextRequest) {
   const token = request.cookies.get('spotify_token')?.value;

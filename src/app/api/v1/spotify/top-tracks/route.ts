@@ -1,4 +1,4 @@
-import spotifyClient from "@/services/api/spotify/users";
+import spotifyClient from "@/data-access/spotify/users";
 import { NextRequest, NextResponse } from "next/server";
 
 async function GET(request: NextRequest): Promise<NextResponse> {
