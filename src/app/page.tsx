@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import spotifyClient from "../services/api/spotify/accounts";
-import TopSongs from "./components/top-songs";
 import Songs from "./components/songs";
 
 export default function Home() {
