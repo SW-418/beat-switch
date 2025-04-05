@@ -1,3 +1,4 @@
+import { Track } from "@/services/Track";
 import { useEffect, useState } from "react";
 
 export default function Songs() {
@@ -12,7 +13,7 @@ export default function Songs() {
       },
     })
     const data = await response.json();
-    setTracks(data.items);
+    setTracks(data);
   }
 
   useEffect(() => {
@@ -27,14 +28,16 @@ export default function Songs() {
             <tr className="bg-gray-100 border-b sticky top-0">
               <th>Song</th>
               <th>Artist</th>
+              <th>Album</th>
               <th>Date Saved</th>
             </tr>
           </thead>
           <tbody className="text-center">
-            {tracks.map((track: any) => (
-              <tr className="border-b" key={track.track.id}>
-                <td>{track.track.name}</td>
-                <td>{track.track.artists[0].name}</td>
+            {tracks.map((track: Track) => (
+              <tr className="border-b" key={track.id}>
+                <td>{track.name}</td>
+                <td>{track.artists.join(', ')}</td>
+                <td>{track.album}</td>
                 <td>{track.added_at}</td>
               </tr>
             ))}
