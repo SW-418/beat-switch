@@ -1,6 +1,7 @@
 import { BaseApiClient } from "../base";
 import ProfileResponse from "./responses/profile-response";
 import { UsersTopTracksResponse, UsersSavedTracksResponse } from "spotify-api";
+import RetryConfig from "./retry-config";
 
 class SpotifyUserApiClient extends BaseApiClient {
   constructor() {
@@ -26,12 +27,22 @@ class SpotifyUserApiClient extends BaseApiClient {
   }
 
   async getTracks(accessToken: string, limit: number = 50, offset: number = 0): Promise<UsersSavedTracksResponse> {
-    return await this.request<UsersSavedTracksResponse>(`/me/tracks?limit=${limit}&offset=${offset}`, {
+    const retryPolicy: RetryConfig = {
+      retryOn: [429],
+      retries: 3,
+      retryDelay: (attempt, error, response) => {
+        const baseDelay = Math.pow(2, attempt) * 100;
+        const jitter = Math.random() * 100;
+        return baseDelay + jitter;
+      }
+    };
+
+    return await this.requestWithRetry<UsersSavedTracksResponse>(`/me/tracks?limit=${limit}&offset=${offset}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
       }
-    });
+    }, retryPolicy);
   }
 }
 

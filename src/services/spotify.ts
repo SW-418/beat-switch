@@ -12,15 +12,18 @@ class SpotifyService implements IMusicService {
     var tracks = await SpotifyUserApiClient.getTracks(accessToken, limit, offset);
     const totalTracks = tracks.total;
     const pages = Math.ceil(totalTracks / limit);
-    savedTracks.push(...this.map(tracks));
+    savedTracks.push(...this.map(tracks.items));
 
     var trackPromises = new Array<Promise<Track[]>>();
     for (let i = 1; i < pages; i++) {
-      trackPromises.push(SpotifyUserApiClient.getTracks(accessToken, limit, i * limit));
+      trackPromises.push(
+        SpotifyUserApiClient.getTracks(accessToken, limit, i * limit)
+        .then(t => this.map(t.items))
+      );
     }
 
     const allTracks = await Promise.all(trackPromises);
-    savedTracks.push(...this.map(allTracks.flat()));
+    savedTracks.push(...allTracks.flat());
 
     return savedTracks;
   }
