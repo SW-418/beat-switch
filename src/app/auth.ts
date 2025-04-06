@@ -1,10 +1,22 @@
-import spotifyClient from "@/data-access/spotify/accounts";
 import ProfileResponse from "./types/responses/profile-response";
 import UnauthorizedError from "./types/errors/unauthorized";
 
 async function handleLogin(): Promise<void> {
     try {
-      const { url, verifier } = await spotifyClient.authorize();
+      const authUrl = new URL('/api/v1/spotify/authorize', window.location.origin);
+      const response = await fetch(authUrl.toString(), {
+        method: 'GET' ,
+        headers: {
+            'Content-Type': 'application/json',
+          },
+      })
+
+      if (response.status !== 200) {
+        throw new Error('Failed to get authorization URL');
+      }
+
+      const { url, verifier } = await response.json();
+
       window.location.href = url;
       window.localStorage.setItem('code_verifier', verifier);
     } catch (error) {

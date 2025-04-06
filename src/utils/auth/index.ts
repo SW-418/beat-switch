@@ -8,7 +8,7 @@ function generateRandomString(length: number): string {
 function sha256Hash(plain: string): Promise<ArrayBuffer> {
     const encoder = new TextEncoder()
     const data = encoder.encode(plain)
-    return window.crypto.subtle.digest('SHA-256', data)
+    return crypto.subtle.digest('SHA-256', data)
 }
 
 function base64encode(input: ArrayBuffer): string {

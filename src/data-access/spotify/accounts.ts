@@ -61,5 +61,6 @@ class SpotifyAccountApiClient extends BaseApiClient {
   }
 }
 
+// TODO: Must be a better way to do this
 const spotifyClient = new SpotifyAccountApiClient();
 export default spotifyClient;
