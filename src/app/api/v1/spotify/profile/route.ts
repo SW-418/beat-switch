@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import spotifyClient from "@/data-access/spotify/users";
 
-async function GET(request: NextRequest) {
+async function GET(request: NextRequest): Promise<NextResponse> {
   const token = request.cookies.get('spotify_token')?.value;
 
   if (!token) return NextResponse.json({ message: 'No token found' }, { status: 401 });
