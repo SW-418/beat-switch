@@ -1,85 +1,63 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import spotifyClient from "../data-access/spotify/accounts";
 import Songs from "./components/songs";
+import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "./auth";
 
 export default function Home() {
   const [code, setCode] = useState('');
-  const [tokenRetrieved, setTokenRetrieved] = useState(false);
-  const [loggedIn, setLoggedIn] = useState(false);
   const [profile, setProfile] = useState({
     displayName: '',
     id: ''
   });
 
-  const handleLogin = async () => {
-    try {
-      const { url, verifier } = await spotifyClient.authorize();
-      window.location.href = url;
-      window.localStorage.setItem('code_verifier', verifier);
-    } catch (error) {
-      console.error('Failed to get authorization URL:', error); 
-    }
-  };
-
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlCode = urlParams.get('code');
+    const urlCode = getCodeQueryParameter();
     
     if (urlCode && code === '') {
       setCode(urlCode);
+      removeCodeQueryParameter();
     }
-  }, []); 
+  }, []);
 
   useEffect(() => {
-    const codeVerifier = window.localStorage.getItem('code_verifier');
-    if (code && codeVerifier) {
-      const url = new URL('/api/v1/spotify/token', window.location.origin);
-      url.searchParams.set('code', code);
-      url.searchParams.set('verifier', codeVerifier);
-
-      const response = async () => {
-        const response = await fetch(url.toString(), {
-          method: 'GET' ,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        setTokenRetrieved(true);
-        window.localStorage.removeItem('code_verifier');
+    // TODO: Single responsibility refactor
+    const tryAuthenticateAndSetProfile = async () => {
+      try {
+        const profile = await getUserProfile();
+        setProfile(profile);
+        return true;
+      } catch(error) {
+        return false;
       }
-      response();
     }
-  }, [code]);
 
-  useEffect(() => {
     const response = async () => {
-      const url = new URL('/api/v1/spotify/profile', window.location.origin);
-      const response = await fetch(url.toString(), {
-        method: 'GET' ,
-        headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-        if (response.status !== 200) {
-          setLoggedIn(false);
-          return;
-        }
-        const data = await response.json();
-        setProfile(data);
-        setLoggedIn(true);
-      }
-      response();
-  }, [tokenRetrieved]);
+      // Check if already authenticated and return if so
+      if (await tryAuthenticateAndSetProfile()) return;
+
+      // If code isn't set this hasn't been triggered as part of dependencies so return
+      if (!code) return;
+      
+      // Otherwise get required codes and try to perform authentication
+      const codeVerifier = getCodeVerifier();
+      
+      if (!codeVerifier) return;
+
+      await getAccessToken(code, codeVerifier);
+      await tryAuthenticateAndSetProfile();
+    }
+    
+    response();
+  }, [code]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
       <div className="top-0 absolute pt-4">
-        {loggedIn && <p>Welcome {profile.displayName} 👋</p>}
+        {profile.displayName && <p>Welcome {profile.displayName} 👋</p>}
       </div>
       <main className="flex-1 flex flex-col justify-center w-full">
-        {!loggedIn && (
+        {!profile.displayName && (
           <><h1 className="text-4xl font-bold mb-8">Beat Switch</h1><button
             onClick={handleLogin}
             className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
@@ -87,7 +65,7 @@ export default function Home() {
             Connect with Spotify
           </button></>
         )}
-        {loggedIn && <Songs />}
+        {profile.displayName && <Songs />}
       </main>
     </div>
   );
