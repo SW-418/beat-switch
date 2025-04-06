@@ -26,8 +26,6 @@ export class BaseApiClient {
     });
 
     if (!response.ok) {
-      // console.error('API Error:', response);
-      // console.error('API Body:', await response.text());
       throw new Error(`API Error: ${response.status} ${response.statusText}`);
     }
 
