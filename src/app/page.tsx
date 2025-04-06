@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Songs from "./components/songs";
 import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "./auth";
+import TopSongs from "./components/top-songs";
 
 export default function Home() {
   const [code, setCode] = useState('');
@@ -10,6 +10,7 @@ export default function Home() {
     displayName: '',
     id: ''
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const urlCode = getCodeQueryParameter();
@@ -34,10 +35,16 @@ export default function Home() {
 
     const response = async () => {
       // Check if already authenticated and return if so
-      if (await tryAuthenticateAndSetProfile()) return;
+      if (await tryAuthenticateAndSetProfile()) {
+        setLoading(false);
+        return;
+      }
 
       // If code isn't set this hasn't been triggered as part of dependencies so return
-      if (!code) return;
+      if (!code) {
+        setLoading(false);
+        return;
+      }
       
       // Otherwise get required codes and try to perform authentication
       const codeVerifier = getCodeVerifier();
@@ -46,6 +53,7 @@ export default function Home() {
 
       await getAccessToken(code, codeVerifier);
       await tryAuthenticateAndSetProfile();
+      setLoading(false);
     }
     
     response();
@@ -54,19 +62,22 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
       <div className="top-0 absolute pt-4">
+        {loading && <p>Loading...</p>}
         {profile.displayName && <p>Welcome {profile.displayName} 👋</p>}
       </div>
-      <main className="flex-1 flex flex-col justify-center w-full">
-        {!profile.displayName && (
-          <><h1 className="text-4xl font-bold mb-8">Beat Switch</h1><button
-            onClick={handleLogin}
-            className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
-          >
-            Connect with Spotify
-          </button></>
-        )}
-        {profile.displayName && <Songs />}
-      </main>
+      {!loading && (
+        <main className="flex-1 flex flex-col justify-center w-full">
+          {!profile.displayName && (
+            <><h1 className="text-4xl font-bold mb-8">Beat Switch</h1><button
+              onClick={handleLogin}
+              className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
+            >
+              Connect with Spotify
+            </button></>
+          )}
+          {profile.displayName && <TopSongs />}
+        </main>
+      )}
     </div>
   );
 }
