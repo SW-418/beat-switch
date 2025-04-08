@@ -18,27 +18,29 @@ export default function TopSongs() {
     retrieveTopSongs();
   }, []);
 
-  return (
-    <div className="w-full md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] 3xl:w-[40%] transition-all duration-300 ease-in-out mx-auto bg-gray-100 text-gray-700 p-4 rounded-xl text-center">
-      <h2>Here's your top {topSongs.length} songs</h2>
-      <div className="p-4">
-        <table className="w-full table-auto">
-          <thead>
-            <tr className="border-b">
-              <th>Song</th>
-              <th>Artist</th>
+return (
+  <div className="w-full md:w-[80%] lg:w-[70%] xl:w-[60%] 2xl:w-[50%] 3xl:w-[40%] transition-all duration-300 ease-in-out mx-auto bg-gray-50 text-gray-800 p-4 rounded-xl shadow-lg">
+    <h2 className="text-2xl font-bold mb-4 text-gray-900">Your Top Songs</h2>
+    <div className="overflow-x-auto">
+      <table className="w-full table-auto min-w-full">
+        <thead className="bg-gray-200">
+          <tr>
+            <th className="px-4 py-2 text-left text-gray-600">#</th>
+            <th className="px-4 py-2 text-left text-gray-600">Song</th>
+            <th className="px-4 py-2 text-left text-gray-600">Artist</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-300">
+          {topSongs.map((song: any, index: number) => (
+            <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
+              <td className="px-4 py-2 text-gray-400">{index + 1}</td>
+              <td className="px-4 py-2 font-medium text-gray-900">{song.name}</td>
+              <td className="px-4 py-2 text-gray-700">{song.artists.map((artist: any) => artist.name).join(', ')}</td>
             </tr>
-          </thead>
-          <tbody className="text-center">
-            {topSongs.map((song: any) => (
-              <tr className="border-b" key={song.id}>
-                <td>{song.name}</td>
-                <td>{song.artists[0].name}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
-  );
+  </div>
+);
 }  

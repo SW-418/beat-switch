@@ -1,6 +1,6 @@
 import { BaseApiClient } from "../base";
 import ProfileResponse from "./responses/profile-response";
-import { UsersTopTracksResponse, UsersSavedTracksResponse } from "spotify-api";
+import { UsersTopTracksResponse, UsersSavedTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse } from "spotify-api";
 import RetryConfig from "./retry-config";
 
 class SpotifyUserApiClient extends BaseApiClient {
@@ -17,8 +17,8 @@ class SpotifyUserApiClient extends BaseApiClient {
     });
   }
 
-  async getTopTracks(accessToken: string): Promise<UsersTopTracksResponse> {
-    return await this.request<UsersTopTracksResponse>('/me/top/tracks', {
+  async getTopTracks(accessToken: string, limit: number = 50, offset: number = 0): Promise<UsersTopTracksResponse> {
+    return await this.request<UsersTopTracksResponse>(`/me/top/tracks?limit=${limit}&offset=${offset}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -43,6 +43,34 @@ class SpotifyUserApiClient extends BaseApiClient {
         'Authorization': `Bearer ${accessToken}`,
       }
     }, retryPolicy);
+  }
+
+  async createPlaylist(accessToken: string, name: string, userId: string, description: string = "Created by Beat Switch"): Promise<CreatePlaylistResponse> {
+    return await this.request<CreatePlaylistResponse>(`/users/${userId}/playlists`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name,
+        public: false,
+        description,
+      }),
+    });
+  }
+
+  async addTracksToPlaylist(accessToken: string, playlistId: string, uris: string[]): Promise<AddTracksToPlaylistResponse> {
+    return await this.request<AddTracksToPlaylistResponse>(`/playlists/${playlistId}/tracks`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uris,
+      }),
+    });
   }
 }
 

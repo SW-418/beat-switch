@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "./auth";
-import TopSongs from "./components/top-songs";
+import NavigationBar from "./components/navigation-bar";
+import PlaylistGenerator from "./components/playlist-generator";
 
 export default function Home() {
   const [code, setCode] = useState('');
@@ -11,6 +12,7 @@ export default function Home() {
     id: ''
   });
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveView] = useState<'home' | 'spotify' | 'apple'>('home');
 
   useEffect(() => {
     const urlCode = getCodeQueryParameter();
@@ -61,7 +63,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
-      <div className="top-0 absolute pt-4">
+      <div className="top-0 absolute pt-4 w-[90%] mx-auto">
+        <NavigationBar setActiveView={setActiveView} />
         {loading && <p>Loading...</p>}
         {profile.displayName && <p>Welcome {profile.displayName} 👋</p>}
       </div>
@@ -75,7 +78,7 @@ export default function Home() {
               Connect with Spotify
             </button></>
           )}
-          {profile.displayName && <TopSongs />}
+          {profile.displayName && activeView === 'spotify' && <PlaylistGenerator profile={profile} />}
         </main>
       )}
     </div>

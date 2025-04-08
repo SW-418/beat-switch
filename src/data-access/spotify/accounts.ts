@@ -10,7 +10,7 @@ class SpotifyAccountApiClient extends BaseApiClient {
   private responseType: string = 'code';
   private codeChallengeMethod: string = 'S256';
   private grantType: string = 'authorization_code';
-  private scope: string = 'user-top-read user-library-read';
+  private scope: string = 'user-top-read user-library-read playlist-modify-public playlist-modify-private';
 
   constructor() {
     super('https://accounts.spotify.com');

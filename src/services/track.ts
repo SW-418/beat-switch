@@ -4,5 +4,5 @@ export interface Track {
     artists: string[];
     album: string;
     isrc: string;
-    added_at: string;
+    added_at?: string;
 }
