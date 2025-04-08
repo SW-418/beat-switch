@@ -14,8 +14,8 @@ class SpotifyAccountApiClient extends BaseApiClient {
 
   constructor() {
     super('https://accounts.spotify.com');
-    const clientId = process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID;
-    const redirectUri = process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI;
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const redirectUri = process.env.SPOTIFY_REDIRECT_URI;
 
     if (!clientId || !redirectUri) throw new Error('Missing required environment variables: SPOTIFY_CLIENT_ID and/or SPOTIFY_REDIRECT_URI');
 
