@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import spotifyClient from "@/data-access/spotify/accounts";
 
-async function GET(request: NextRequest): Promise<NextResponse> {
+async function GET(_request: NextRequest): Promise<NextResponse> {
     try {
         const { url, verifier } = await spotifyClient.authorize();
         return NextResponse.json({ url, verifier }, { status: 200 });

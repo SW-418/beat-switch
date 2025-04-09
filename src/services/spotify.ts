@@ -66,7 +66,8 @@ class SpotifyService implements IMusicService {
   }
 }
 
-export default new SpotifyService();
+const spotifyService = new SpotifyService();
+export default spotifyService;
 
 interface IMusicService {
   getAllSavedTracks(accessToken: string): Promise<Track[]>;

@@ -1,10 +1,10 @@
-import { Track } from "@/services/Track";
+import { Track } from "../types/responses/track"
 import { useEffect, useState } from "react";
 
 export default function Songs() {
   const [tracks, setTracks] = useState([]);
 
-  const retrieveTracks = async (offset: number = 0) => {
+  const retrieveTracks = async () => {
     const url = new URL('/api/v1/spotify/tracks', window.location.origin);
     const response = await fetch(url.toString(), {
       method: 'GET',

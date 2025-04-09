@@ -20,7 +20,7 @@ export default function Spotify() {
       setCode(urlCode);
       removeCodeQueryParameter();
     }
-  }, []);
+  }, [code]);
 
   useEffect(() => {
     // TODO: Single responsibility refactor
@@ -63,7 +63,7 @@ export default function Spotify() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
       <div className="top-0 absolute pt-4 w-[90%] mx-auto">
-        <NavigationBar pageName="Spotify" />
+        <NavigationBar />
         {loading && <p>Loading...</p>}
         {profile.displayName && <p>Welcome {profile.displayName} 👋</p>}
       </div>

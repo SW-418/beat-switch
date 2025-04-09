@@ -1,4 +1,4 @@
-import ProfileResponse from "./types/responses/profile-response";
+import { Profile } from "./types/responses/profile";
 import UnauthorizedError from "./types/errors/unauthorized";
 
 async function handleLogin(): Promise<void> {
@@ -57,7 +57,7 @@ async function getAccessToken(code: string, codeVerifier: string): Promise<void>
     })
 }
 
-async function getUserProfile(): Promise<ProfileResponse> {
+async function getUserProfile(): Promise<Profile> {
     const profileUrl = new URL('/api/v1/spotify/profile', window.location.origin);
     const profileResponse = await fetch(profileUrl.toString(), {
       method: 'GET' ,

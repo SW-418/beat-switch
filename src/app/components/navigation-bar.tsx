@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 
-export default function NavigationBar({ pageName }: { pageName: string }) {
+export default function NavigationBar() {
     const router = useRouter();
     return (
         <nav className="bg-white/5 backdrop-blur-sm rounded-lg mx-auto">

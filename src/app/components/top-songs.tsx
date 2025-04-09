@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Track } from "../types/responses/track";
 
 export default function TopSongs() {
   const [topSongs, setTopSongs] = useState([]);
@@ -31,7 +32,7 @@ return (
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-300">
-          {topSongs.map((song: any, index: number) => (
+          {topSongs.map((song: Track, index: number) => (
             <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
               <td className="px-4 py-2 text-gray-400">{index + 1}</td>
               <td className="px-4 py-2 font-medium text-gray-900">{song.name}</td>

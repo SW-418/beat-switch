@@ -1,10 +1,12 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { SelectableDropdown } from "./selectable-dropdown";
 import { DropdownOption } from "./selectable-dropdown";
-import Modal from "react-modal";
-import { Track } from "@/services/track";
+import { Profile } from "../types/responses/profile";
+import { Track } from "../types/responses/track";
 
-export default function PlaylistGenerator({ profile }: { profile: any }) {
+export default function PlaylistGenerator({ profile }: { profile: Profile }) {
     const songTypes: DropdownOption<string>[] = [
         { name: "Top Songs", value: "top" },
         { name: "All Songs", value: "all" },
@@ -109,7 +111,7 @@ export default function PlaylistGenerator({ profile }: { profile: any }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
-                {songs.map((song: any, index: number) => (
+                {songs.map((song: Track, index: number) => (
                   <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
                     <td className="p-2 text-gray-400">{index + 1}</td>
                     <td className="p-2 font-medium text-gray-900">{song.name}</td>

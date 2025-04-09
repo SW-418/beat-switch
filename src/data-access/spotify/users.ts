@@ -1,6 +1,5 @@
 import { BaseApiClient } from "../base";
-import ProfileResponse from "./responses/profile-response";
-import { UsersTopTracksResponse, UsersSavedTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse } from "spotify-api";
+import { UsersTopTracksResponse, UsersSavedTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse, UserObjectPrivate } from "spotify-api";
 import RetryConfig from "./retry-config";
 
 class SpotifyUserApiClient extends BaseApiClient {
@@ -8,8 +7,8 @@ class SpotifyUserApiClient extends BaseApiClient {
     super('https://api.spotify.com/v1');
   }
 
-  async getProfile(accessToken: string): Promise<ProfileResponse> {
-    return await this.request<ProfileResponse>('/me', {
+  async getProfile(accessToken: string): Promise<UserObjectPrivate> {
+    return await this.request<UserObjectPrivate>('/me', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
