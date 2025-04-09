@@ -7,14 +7,14 @@ class SpotifyService implements IMusicService {
 
   async getAllSavedTracks(accessToken: string): Promise<Track[]> {
     const savedTracks = new Array<Track>();
-    var offset = 0;
+    const offset = 0;
     const limit = 50;
-    var tracks = await SpotifyUserApiClient.getTracks(accessToken, limit, offset);
+    const tracks = await SpotifyUserApiClient.getTracks(accessToken, limit, offset);
     const totalTracks = tracks.total;
     const pages = Math.ceil(totalTracks / limit);
     savedTracks.push(...this.mapSavedTracks(tracks.items));
 
-    var trackPromises = new Array<Promise<Track[]>>();
+    const trackPromises = new Array<Promise<Track[]>>();
     for (let i = 1; i < pages; i++) {
       trackPromises.push(
         SpotifyUserApiClient.getTracks(accessToken, limit, i * limit)
