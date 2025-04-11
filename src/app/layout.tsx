@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,8 @@ export default function RootLayout({
       >
         {children}
       </body>
+      {/* Required for Apple MusicKit (unfortunately) */}
+      <Script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async />
     </html>
   );
 }
