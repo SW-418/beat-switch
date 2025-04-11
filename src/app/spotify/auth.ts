@@ -1,5 +1,5 @@
-import { Profile } from "./types/responses/profile";
-import UnauthorizedError from "./types/errors/unauthorized";
+import { Profile } from "../types/responses/profile";
+import UnauthorizedError from "../types/errors/unauthorized";
 
 async function handleLogin(): Promise<void> {
     try {

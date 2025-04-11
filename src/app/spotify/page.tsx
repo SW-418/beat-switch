@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "../auth";
+import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "./auth";
 import NavigationBar from "../components/navigation-bar";
 import PlaylistGenerator from "../components/playlist-generator";
 
