@@ -23,13 +23,13 @@ export default function NavigationBar() {
                         </button>
                         <button 
                             onClick={() => router.push('/apple')}
-                            className="text-white text-sm bg-pink-500 hover:bg-pink-600 px-2 py-1.5 rounded-lg transition-colors font-medium min-w-[90px] text-center"
+                            className="text-white text-sm bg-[#FA2D48] hover:bg-[#FA2D75] px-2 py-1.5 rounded-lg transition-colors font-medium min-w-[90px] text-center"
                         >
                             Apple Music
                         </button>
                         <button 
                             onClick={() => router.push('/sync')}
-                            className="text-white text-sm bg-gradient-to-r from-green-500 to-pink-500 px-2 py-1.5 rounded-lg transition-all duration-300 font-medium min-w-[90px] text-center"
+                            className="text-white text-sm bg-gradient-to-r from-green-500 to-[#FA2D48] px-2 py-1.5 rounded-lg transition-all duration-300 font-medium min-w-[90px] text-center"
                         >
                             Sync
                         </button>

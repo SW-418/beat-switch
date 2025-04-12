@@ -67,10 +67,8 @@ export default function Spotify() {
         {loading && <p>Loading...</p>}
         {profile.displayName && <p>Welcome {profile.displayName} 👋</p>}
       </div>
-      {!loading && (
-        <main className="flex-1 flex flex-col justify-center w-full">
-          {!profile.displayName && (
-            <><h1 className="text-4xl font-bold mb-8">Beat Switch</h1><button
+      {(!loading && !profile.displayName) && (
+            <><h1 className="text-4xl font-bold mb-8">Spotify</h1><button
               onClick={handleLogin}
               className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
             >
@@ -78,8 +76,6 @@ export default function Spotify() {
             </button></>
           )}
           {profile.displayName && <PlaylistGenerator profile={profile} />}
-        </main>
-      )}
     </div>
   );
 }
