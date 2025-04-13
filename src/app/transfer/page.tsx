@@ -8,7 +8,7 @@ export default function Sync() {
             <div className="top-0 absolute pt-4 w-[90%] mx-auto">
                 <NavigationBar />
             </div>
-            <h1 className="text-4xl font-bold mb-8"> Sync </h1>
+            <h1 className="text-4xl font-bold mb-8"> Transfer </h1>
             <h2 className="text-2xl font-bold mb-8"> Hold on there brother we&apos;re still working on this </h2>
         </div>
     );

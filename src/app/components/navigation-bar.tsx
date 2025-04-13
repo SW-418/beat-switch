@@ -28,10 +28,10 @@ export default function NavigationBar() {
                             Apple Music
                         </button>
                         <button 
-                            onClick={() => router.push('/sync')}
+                            onClick={() => router.push('/transfer')}
                             className="text-white text-sm bg-gradient-to-r from-green-500 to-[#FA2D48] px-2 py-1.5 rounded-lg transition-all duration-300 font-medium min-w-[90px] text-center"
                         >
-                            Sync
+                            Transfer
                         </button>
                     </div>
                 </div>
