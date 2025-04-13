@@ -29,6 +29,7 @@ export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof 
             limit: count,
             offset: 0
         };
+        // Apple Music APIs are even worse than Spotify 😭
         const result = await musicKit.getInstance().api.music('/v1/me/history/heavy-rotation', queryParams);
         console.log(result.data);
         // setSongs(data);
