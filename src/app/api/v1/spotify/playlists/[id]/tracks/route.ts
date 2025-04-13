@@ -16,4 +16,15 @@ async function POST(request: NextRequest, { params }: { params: { id: string } }
   return new NextResponse(JSON.stringify(response), { headers: { 'Content-Type': 'application/json' }, status: 201 });
 }
 
-export { POST };
+async function GET(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
+  const token = request.cookies.get('spotify_token')?.value;
+  const playlistId = params.id;
+
+  if (!token) return new NextResponse('No token found', { status: 401 });
+  if (!playlistId) return new NextResponse('Missing required fields', { status: 400 });
+
+  const response = await spotifyService.getAllPlaylistTracks(token, playlistId);
+  return new NextResponse(JSON.stringify(response), { headers: { 'Content-Type': 'application/json' }, status: 200 });
+}
+
+export { POST, GET };

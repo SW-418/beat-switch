@@ -15,4 +15,13 @@ async function POST(request: NextRequest): Promise<NextResponse> {
   return new NextResponse(JSON.stringify({ id: playlistResponse.id}), { headers: { 'Content-Type': 'application/json' }, status: 201 });
 }
 
-export { POST };
+async function GET(request: NextRequest): Promise<NextResponse> {
+  const token = request.cookies.get('spotify_token')?.value;
+  if (!token) return new NextResponse('No token found', { status: 401 });
+
+  const playlists = await spotifyService.getPlaylists(token);
+  
+  return new NextResponse(JSON.stringify(playlists), { headers: { 'Content-Type': 'application/json' }, status: 200 });
+}
+
+export { POST, GET };
