@@ -35,48 +35,11 @@ export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof 
       }
 
     const retrieveAllSongs = async (count: number) => {
-        const url = new URL("/api/v1/spotify/tracks", window.location.origin);
-        url.searchParams.set("limit", count.toString());
-        url.searchParams.set("offset", "0");
-        const response = await fetch(url.toString(), {
-            method: "GET",
-            headers: {
-            "Content-Type": "application/json",
-            },
-        })
-        const data = await response.json();
-        setSongs(data);
+      throw new Error("Not implemented");
     }
 
     const createPlaylist = async () => {
-      // Create new playlist
-        const playlistCreationUrl = new URL("/api/v1/spotify/playlists", window.location.origin);
-        const response = await fetch(playlistCreationUrl.toString(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: "Test Playlist",
-            userId: profile.id,
-            description: "Created by Beat Switch"
-          })
-        })
-        const data = await response.json();
-        const playlistId = data.id;
-
-        // Add current songs to new playlist
-        const playlistAddUrl = new URL(`/api/v1/spotify/playlists/${playlistId}/tracks`, window.location.origin);
-        const addResponse = await fetch(playlistAddUrl.toString(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uris: songs.map(song => `spotify:track:${song.id}`)
-          })
-        })
-        const playlistAddResponse = await addResponse.json();
+      throw new Error("Not implemented");
     }
 
     useEffect(() => {
