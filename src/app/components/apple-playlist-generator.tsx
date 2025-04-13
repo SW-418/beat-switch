@@ -22,8 +22,7 @@ export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof 
     const [songs, setSongs] = useState<Track[]>([]);
 
     const retrieveTopSongs = async (count: number) => {
-        if (!musicKit) return;
-        console.log(musicKit.getInstance());
+        if (!musicKit || !musicKit.getInstance()) return;
         await musicKit.getInstance().authorize();
         const queryParams = {
             limit: count,
@@ -36,7 +35,23 @@ export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof 
       }
 
     const retrieveAllSongs = async (count: number) => {
-      throw new Error("Not implemented");
+      if (!musicKit || !musicKit.getInstance()) return;
+      await musicKit.getInstance().authorize();
+      const queryParams = {
+          limit: count,
+          offset: 0
+      };
+      // Apple Music APIs are even worse than Spotify 😭
+      const result = await musicKit.getInstance().api.music('/v1/me/library/songs', queryParams);
+      console.log(result.data);
+
+      // Extrac this into mapper class
+      const tracks = result.data.data.map((track: any) => ({
+        id: track.id,
+        name: track.attributes.name,
+        artists: track.attributes.artistName
+      }));
+      setSongs(tracks);
     }
 
     const createPlaylist = async () => {
@@ -77,7 +92,7 @@ export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof 
                   <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
                     <td className="p-2 text-gray-400">{index + 1}</td>
                     <td className="p-2 font-medium text-gray-900">{song.name}</td>
-                    <td className="p-2 text-gray-700">{song.artists.map((artist: any) => artist.name).join(", ")}</td>
+                    <td className="p-2 text-gray-700">{song.artists}</td>
                   </tr>
                 ))}
               </tbody>
