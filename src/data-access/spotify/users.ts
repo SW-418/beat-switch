@@ -1,5 +1,5 @@
 import { BaseApiClient } from "../base";
-import { UsersTopTracksResponse, UsersSavedTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse, UserObjectPrivate } from "spotify-api";
+import { UsersTopTracksResponse, UsersSavedTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse, UserObjectPrivate, ListOfCurrentUsersPlaylistsResponse, PlaylistTracksResponse } from "spotify-api";
 import RetryConfig from "./retry-config";
 
 class SpotifyUserApiClient extends BaseApiClient {
@@ -42,6 +42,24 @@ class SpotifyUserApiClient extends BaseApiClient {
         'Authorization': `Bearer ${accessToken}`,
       }
     }, retryPolicy);
+  }
+
+  async getPlaylists(accessToken: string): Promise<ListOfCurrentUsersPlaylistsResponse[]> {
+    return await this.request<ListOfCurrentUsersPlaylistsResponse[]>(`/me/playlists`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
+  }
+
+  async getPlaylistTracks(accessToken: string, playlistId: string, limit: number = 50, offset: number = 0): Promise<PlaylistTracksResponse> {
+    return await this.request<PlaylistTracksResponse>(`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+      },
+    });
   }
 
   async createPlaylist(accessToken: string, name: string, userId: string, description: string = "Created by Beat Switch"): Promise<CreatePlaylistResponse> {
