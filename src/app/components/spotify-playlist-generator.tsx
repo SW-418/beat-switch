@@ -6,7 +6,7 @@ import { DropdownOption } from "./selectable-dropdown";
 import { Profile } from "../types/responses/profile";
 import { Track } from "../types/responses/track";
 
-export default function PlaylistGenerator({ profile }: { profile: Profile }) {
+export default function SpotifyPlaylistGenerator({ profile }: { profile: Profile }) {
     const songTypes: DropdownOption<string>[] = [
         { name: "Top Songs", value: "top" },
         { name: "All Songs", value: "all" },

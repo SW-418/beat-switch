@@ -2,24 +2,27 @@
 
 import { useEffect, useState } from "react";
 import NavigationBar from "../components/navigation-bar";
+import ApplePlaylistGenerator from "../components/apple-playlist-generator";
 
 export default function Apple() {
   const [musicKit, setMusicKit] = useState<typeof window.MusicKit | null>(null);
 
   useEffect(() => {
-    if (!process.env.APPLE_MUSIC_DEV_TOKEN || typeof window === 'undefined') return;
+    if (typeof window === 'undefined') return;
 
     if (!window.MusicKit) {
       console.warn('MusicKit SDK not loaded');
       return;
     }
 
-    window.MusicKit.configure({
-      developerToken: process.env.APPLE_MUSIC_DEV_TOKEN,
-      app: { name: 'Beat Switch', build: '1.0.0' },
-    });
-
-    console.log('MusicKit configured');
+    fetch('/api/v1/apple/token')
+      .then(res => res.json())
+      .then(token => {
+        window.MusicKit.configure({
+          developerToken: token.token,
+          app: { name: 'Beat Switch', build: '1.0.0' },
+        });
+      });
 
     setMusicKit(window.MusicKit);
   }, []);
@@ -27,6 +30,7 @@ export default function Apple() {
   async function handleLogin() {
     if (!musicKit) return;
     await musicKit.getInstance().authorize();
+
   }
 
   return (
@@ -41,6 +45,8 @@ export default function Apple() {
       >
         Connect with Apple Music
       </button>
+
+      {musicKit && <ApplePlaylistGenerator musicKit={musicKit} />}
     </div>
   );
 }
