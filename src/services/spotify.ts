@@ -54,7 +54,8 @@ class SpotifyService implements IMusicService {
     return playlists.map(p => ({
       id: p.id,
       name: p.name,
-      description: p.description
+      description: p.description,
+      imageUrls: p.images.map(i => i.url)
     }));
   }
 

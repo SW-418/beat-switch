@@ -2,7 +2,6 @@ import spotifyService from "@/services/spotify";
 import { NextRequest, NextResponse } from "next/server";
 
 async function POST(request: NextRequest): Promise<NextResponse> {
-
   const body = await request.json();
   const { name, userId, description } = body;
 
