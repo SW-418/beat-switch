@@ -18,7 +18,7 @@ async function POST(request: NextRequest, { params }: { params: { id: string } }
 
 async function GET(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
   const token = request.cookies.get('spotify_token')?.value;
-  const playlistId = params.id;
+  const { id: playlistId } = await params;
 
   if (!token) return new NextResponse('No token found', { status: 401 });
   if (!playlistId) return new NextResponse('Missing required fields', { status: 400 });

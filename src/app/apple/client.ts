@@ -29,17 +29,19 @@ async function createPlaylist(playlist: Playlist): Promise<string> {
     return playlistId;
 }
 
-async function getSongsByISRC(isrc: string[]): Promise<Record<string, string>> {
-    const batchSize = 25;
+// Mapping of ISRC to Apple Music track ID
+async function getSongsByISRC(songs: Track[]): Promise<Record<string, string>> {
+    const batchSize = 20;
     const { developerToken, userToken } = getTokens();
     const songMappings: Record<string, string> = {};
 
-    for(let i = 0; i < isrc.length; i += batchSize) {
-        const batch = isrc.slice(i, i + batchSize);
+    for(let i = 0; i < songs.length + batchSize; i += batchSize) {
+        const batch = songs.slice(i, i + batchSize);
+        if (batch.length === 0) break;
 
         // TODO: Storefront should be configurable
         const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/songs`, window.location.origin);
-        url.searchParams.set('filter[isrc]', batch.join(','));
+        url.searchParams.set('filter[isrc]', batch.map(song => song.isrc).join(','));
     
         const response = await fetch(url.toString(), {
             method: 'GET',
@@ -50,8 +52,10 @@ async function getSongsByISRC(isrc: string[]): Promise<Record<string, string>> {
             }
         });
         const mappingResponse = await response.json();
-
-        mappingResponse.data.forEach((song: any) => {  
+            
+        // TODO: DefinitelyTyped for Apple Responses
+        mappingResponse.data.forEach((song: any) => {
+            if (!song.attributes.isrc) { console.error(`No ISRC found for song: ${song}`); }
             songMappings[song.attributes.isrc] = song.id;
         });
     }
@@ -59,11 +63,11 @@ async function getSongsByISRC(isrc: string[]): Promise<Record<string, string>> {
     return songMappings;
 }
 
-async function addSongsToPlaylist(songs: Track[], songMappings: Record<string, string>, appleMusicPlaylistId: string): Promise<void> { 
+async function addSongsToPlaylist(songs: Track[], appleMusicPlaylistId: string): Promise<void> { 
     const { developerToken, userToken } = getTokens();
     
     const songIds = songs.map(song => {
-        const songId = songMappings[song.isrc];
+        const songId = song.external_id;
         if (!songId) {
             console.error(`No song found for ISRC: ${song.isrc}`);
         }
@@ -84,8 +88,6 @@ async function addSongsToPlaylist(songs: Track[], songMappings: Record<string, s
             }))
         })
     });
-
-    console.log(response);
     
     if (!response.ok) {
         throw new Error('Failed to add songs to playlist');

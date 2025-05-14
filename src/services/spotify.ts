@@ -36,7 +36,8 @@ class SpotifyService implements IMusicService {
       artists: t.track.artists,
       album: t.track.album.name,
       isrc: t.track.external_ids.isrc,
-      added_at: t.added_at
+      added_at: t.added_at,
+      country_code: t.track.external_ids.isrc.slice(0, 2)
     }));
   }
 
@@ -47,6 +48,7 @@ class SpotifyService implements IMusicService {
       artists: t.artists,
       album: t.album.name,
       isrc: t.external_ids.isrc,
+      country_code: t.external_ids.isrc.slice(0, 2)
     }));
   }
 
@@ -66,7 +68,8 @@ class SpotifyService implements IMusicService {
       artists: t.track.artists,
       album: t.track.album.name,
       isrc: t.track.external_ids.isrc,
-      added_at: t.added_at
+      added_at: t.added_at,
+      country_code: t.track.external_ids.isrc.slice(0, 2)
     }));
   }
 

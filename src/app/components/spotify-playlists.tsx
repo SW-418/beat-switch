@@ -34,10 +34,16 @@ export default function SpotifyPlaylists() {
       const appleMusicPlaylistId = await createPlaylist(playlist);
 
       // Lookup Apple Music track IDs using ISRC
-      const songMappings = await getSongsByISRC(songs.map(song => song.isrc));
+      const songMappings = await getSongsByISRC(songs);
+
+      // Update song objects with external IDs (if present)
+      songs.forEach(song => {
+        song.external_id = songMappings[song.isrc];
+        if (!song.external_id) console.error(`No external ID found for song: ${song.name} - ${song.artists.map(artist => artist.name).join(', ')}`);
+      });
 
       // Add tracks to the playlist in Apple Music
-      await addSongsToPlaylist(songs, songMappings, appleMusicPlaylistId);
+      await addSongsToPlaylist(songs, appleMusicPlaylistId);
     };
 
     async function getSongsForPlaylist(playlistId: string): Promise<Track[]> {

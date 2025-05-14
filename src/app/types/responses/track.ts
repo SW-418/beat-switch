@@ -5,4 +5,6 @@ export interface Track {
     album: string;
     isrc: string;
     added_at?: string;
+    country_code: string;
+    external_id?: string;
 }
