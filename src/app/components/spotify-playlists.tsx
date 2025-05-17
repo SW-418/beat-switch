@@ -58,6 +58,22 @@ export default function SpotifyPlaylists() {
       return data;
     }
 
+    const transferLikedSongs = async () => {
+      // Get all liked songs from Spotify
+      // TODO: This is paginated on the BE for calls to Spotify, but could be paginated here as well
+      const likedSongsUrl = new URL(`/api/v1/spotify/tracks`, window.location.origin);
+      const likedSongsResponse = await fetch(likedSongsUrl.toString(), {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+      const likedSongs = await likedSongsResponse.json();
+      console.log(likedSongs);
+      const songMappings = await getSongsByISRC(likedSongs);
+      console.log(songMappings);
+    }
+
     return (
         <div className="w-full transition-all duration-300 ease-in-out mx-auto bg-gray-50 text-gray-800 p-4 rounded-xl shadow-lg">
           <div className="overflow-x-auto">
@@ -70,9 +86,15 @@ export default function SpotifyPlaylists() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
-                {playlists.map((playlist: Playlist, index: number) => (
+                <tr key={"create"} className="hover:bg-gray-100 transition-colors text-left" onClick={() => transferLikedSongs()}>
+                    <td>
+                      <img alt="" className="w-16 h-16 p-2 rounded-xl" />
+                    </td>
+                    <td className="p-2 font-medium text-gray-900">Liked Songs</td>
+                    <td className="p-2 text-gray-700">Transfer all of your liked songs to Apple Music</td>
+                  </tr>
+                {playlists.map((playlist: Playlist) => (
                   <tr key={playlist.id} className="hover:bg-gray-100 transition-colors text-left" onClick={() => transferPlaylist(playlist)}>
-                    {/* <td className="p-2 text-gray-400">{index + 1}</td> */}
                     <td>
                       <img src={playlist?.imageUrls[0]} alt="" className="w-16 h-16 p-2 rounded-xl" />
                     </td>
