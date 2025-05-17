@@ -27,10 +27,15 @@ class SpotifyUserApiClient extends BaseApiClient {
 
   async getTracks(accessToken: string, limit: number = 50, offset: number = 0): Promise<UsersSavedTracksResponse> {
     const retryPolicy: RetryConfig = {
-      retryOn: [429],
+      retryOn: (attempt, error, response) => {
+        if (error) return true;
+        const shouldRetry = response.status === 429;
+        if (shouldRetry) console.log(`Attempt ${attempt}: ${error} - ${response.status}`);
+        return shouldRetry;
+      },
       retries: 3,
-      retryDelay: (attempt, error, response) => {
-        const baseDelay = Math.pow(2, attempt) * 100;
+      retryDelay: (attempt, _error, _response) => {
+        const baseDelay = Math.pow(2, attempt) * 1000;
         const jitter = Math.random() * 100;
         return baseDelay + jitter;
       }

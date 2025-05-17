@@ -44,16 +44,17 @@ export class BaseApiClient {
         ...this.headers,
         ...options.headers,
       },
-      ...retryPolicy,
+      retries: retryPolicy?.retries ?? 3,
+      retryDelay: retryPolicy?.retryDelay,
+      retryOn: retryPolicy?.retryOn ?? [429],
     });
 
     console.log(`${options.method} ${endpoint} ${response.status}`);
 
-    // if (!response.ok) {
-    //   console.error('API Error:', response.status);
-    //   // console.error('API Body:', await response.text());
-    //   throw new Error(`API Error: ${response.status} ${response.statusText}`);
-    // }
+    if (!response.ok) {
+      console.error('API Error:', response.status);
+      throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    }
 
     return response.json();
   }

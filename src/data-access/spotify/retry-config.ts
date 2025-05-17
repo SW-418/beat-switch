@@ -1,5 +1,5 @@
 export interface RetryConfig {
-  retryOn?: number[];
+  retryOn?: (attempt: number, error: unknown, response: Response) => boolean;
   retries?: number;
   retryDelay?: (attempt: number, error: unknown, response: Response) => number;
 }
