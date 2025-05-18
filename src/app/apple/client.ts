@@ -2,9 +2,11 @@
 
 import { Playlist } from "../types/responses/playlist";
 import { Track } from "../types/responses/track";
+import { SongMapping } from "../types/song-mapping";
 
 const APPLE_MUSIC_API_URL = 'https://api.music.apple.com/v1';
 
+// TODO: We should refactor this into a class
 async function createPlaylist(playlist: Playlist): Promise<string> {
     const { developerToken, userToken } = getTokens();
     
@@ -61,6 +63,86 @@ async function getSongsByISRC(songs: Track[]): Promise<Record<string, string>> {
     }
 
     return songMappings;
+}
+
+// Gets potential song mappings in Apple Music by ISRC
+// ISRC codes can return multiple songs, e.g. if a song appears on multiple albums such as compilations
+async function getSongMappingsByISRC(songs: Track[]): Promise<Record<string, SongMapping[]>> {
+    const batchSize = 20;
+    const { developerToken, userToken } = getTokens();
+    const songMappings: Record<string, SongMapping[]> = {};
+
+    for(let i = 0; i < songs.length + batchSize; i += batchSize) {
+        const batch = songs.slice(i, i + batchSize);
+        if (batch.length === 0) break;
+
+        // TODO: Storefront should be configurable
+        const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/songs`, window.location.origin);
+        url.searchParams.set('filter[isrc]', batch.map(song => song.isrc).join(','));
+    
+        const response = await fetch(url.toString(), {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${developerToken}`,
+                'Music-User-Token': `${userToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const mappingResponse = await response.json();
+
+        // TODO: Extrac to mapping class
+        mappingResponse.data.forEach((song: any) => {
+            if (!song.attributes.isrc) { console.error(`No ISRC found for song: ${song}`); }
+            if (!songMappings[song.attributes.isrc]) { songMappings[song.attributes.isrc] = []; }
+            songMappings[song.attributes.isrc].push({
+                id: song.id,
+                isrc: song.attributes.isrc,
+                name: song.attributes.name,
+                albumName: song.attributes.albumName,
+                artistName: song.attributes.artistName,
+                releaseDate: song.attributes.releaseDate,
+                trackNumber: song.attributes.trackNumber,
+                durationInMillis: song.attributes.durationInMillis
+            });
+        });
+    }
+
+    return songMappings;
+}
+
+async function getSongMappingsByNames(song: Track): Promise<SongMapping[]> {
+    const { developerToken, userToken } = getTokens();
+    const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/search`, window.location.origin);
+    const artistSearch = song.artists.map(artist => artist.name).join('+');
+    url.searchParams.set('types', 'songs');
+    url.searchParams.set('term', `${artistSearch}+${song.name}+${song.album}`);
+    
+    const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${developerToken}`,
+            'Music-User-Token': `${userToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    const searchResponse = await response.json();
+    console.log(searchResponse);
+
+    const mappings: SongMapping[] = [];
+    searchResponse?.results?.songs?.data?.forEach((song: any) => {
+        mappings.push({
+            id: song.id,
+            isrc: song.attributes.isrc,
+            name: song.attributes.name,
+            albumName: song.attributes.albumName,
+            artistName: song.attributes.artistName,
+            releaseDate: song.attributes.releaseDate,
+            trackNumber: song.attributes.trackNumber,
+            durationInMillis: song.attributes.durationInMillis
+        });
+    });
+    
+    return mappings;
 }
 
 async function addSongsToPlaylist(songs: Track[], appleMusicPlaylistId: string): Promise<void> { 
@@ -121,6 +203,7 @@ function getUserToken(): string {
     const musicKit = window.MusicKit.getInstance();
     const userToken = musicKit.musicUserToken;
 
+
     if (!userToken) {
         throw new Error('User token not found');
     }
@@ -128,4 +211,4 @@ function getUserToken(): string {
     return userToken;
 }
 
-export { createPlaylist, getSongsByISRC, addSongsToPlaylist };
+export { createPlaylist, getSongsByISRC, getSongMappingsByISRC, getSongMappingsByNames, addSongsToPlaylist };
