@@ -11,9 +11,11 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@types/spotify-api": "^0.0.25",
+    "dotenv": "^16.5.0",
     "fetch-retry": "^6.0.0",
     "jsonwebtoken": "^9.0.2",
     "next": "15.2.2",
+    "pg": "^8.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-modal": "^3.16.3"
