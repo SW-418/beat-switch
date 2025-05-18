@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Playlist } from "../types/responses/playlist";
 import { createPlaylist, getSongsByISRC, addSongsToPlaylist } from "../apple/client";
 import { Track } from "../types/responses/track";
+import SpotifyClient from "../spotify/client";
 
 export default function SpotifyPlaylists() {
     const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -58,22 +59,6 @@ export default function SpotifyPlaylists() {
       return data;
     }
 
-    const transferLikedSongs = async () => {
-      // Get all liked songs from Spotify
-      // TODO: This is paginated on the BE for calls to Spotify, but could be paginated here as well
-      const likedSongsUrl = new URL(`/api/v1/spotify/tracks`, window.location.origin);
-      const likedSongsResponse = await fetch(likedSongsUrl.toString(), {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      const likedSongs = await likedSongsResponse.json();
-      console.log(likedSongs);
-      const songMappings = await getSongsByISRC(likedSongs);
-      console.log(songMappings);
-    }
-
     return (
         <div className="w-full transition-all duration-300 ease-in-out mx-auto bg-gray-50 text-gray-800 p-4 rounded-xl shadow-lg">
           <div className="overflow-x-auto">
@@ -86,7 +71,7 @@ export default function SpotifyPlaylists() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
-                <tr key={"create"} className="hover:bg-gray-100 transition-colors text-left" onClick={() => transferLikedSongs()}>
+                <tr key={"create"} className="hover:bg-gray-100 transition-colors text-left" onClick={() => SpotifyClient.transferLikedSongs()}>
                     <td>
                       <img alt="" className="w-16 h-16 p-2 rounded-xl" />
                     </td>
