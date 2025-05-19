@@ -1,4 +1,4 @@
-import { generateRandomString } from "./index";
+import { generateRandomString } from "../crypto";
 
 let codeVerifier: string | null = null;
 
