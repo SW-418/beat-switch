@@ -46,6 +46,7 @@ model Song {
   album       String
   releaseDate DateTime
   duration    Int
+  hash        String        @unique
   Artists     Artist[]
   SongMapping SongMapping[]
 }
