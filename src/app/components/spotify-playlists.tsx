@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Playlist } from "../types/responses/playlist";
-import { createPlaylist, getSongsByISRC, addSongsToPlaylist } from "../apple/client";
-import { Track } from "../types/responses/track";
 import SpotifyClient from "../spotify/client";
 
 export default function SpotifyPlaylists() {
@@ -14,49 +12,8 @@ export default function SpotifyPlaylists() {
     }, []);
 
     const retrievePlaylists = async () => {
-        const url = new URL("/api/v1/spotify/playlists", window.location.origin);
-        // TODO: Add limit and offset
-        const response = await fetch(url.toString(), {
-          method: "GET" ,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        const data = await response.json();
-        setPlaylists(data);
-    }
-
-    const transferPlaylist = async (playlist: Playlist) => {
-      // Retrieve all tracks from the playlist
-      const songs = await getSongsForPlaylist(playlist.id);
-      
-      // Create playlist in Apple Music
-      // TODO: We need to better abstract this - This component is doing too much
-      const appleMusicPlaylistId = await createPlaylist(playlist);
-
-      // Lookup Apple Music track IDs using ISRC
-      const songMappings = await getSongsByISRC(songs);
-
-      // Update song objects with external IDs (if present)
-      songs.forEach(song => {
-        song.external_id = songMappings[song.isrc];
-        if (!song.external_id) console.error(`No external ID found for song: ${song.name} - ${song.artists.map(artist => artist.name).join(', ')}`);
-      });
-
-      // Add tracks to the playlist in Apple Music
-      await addSongsToPlaylist(songs, appleMusicPlaylistId);
-    };
-
-    async function getSongsForPlaylist(playlistId: string): Promise<Track[]> {
-      const url = new URL(`/api/v1/spotify/playlists/${playlistId}/tracks`, window.location.origin);
-      const response = await fetch(url.toString(), {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-      const data = await response.json();
-      return data;
+        const playlists = await SpotifyClient.getPlayLists();
+        setPlaylists(playlists);
     }
 
     return (
@@ -79,7 +36,7 @@ export default function SpotifyPlaylists() {
                     <td className="p-2 text-gray-700">Transfer all of your liked songs to Apple Music</td>
                   </tr>
                 {playlists.map((playlist: Playlist) => (
-                  <tr key={playlist.id} className="hover:bg-gray-100 transition-colors text-left" onClick={() => transferPlaylist(playlist)}>
+                  <tr key={playlist.id} className="hover:bg-gray-100 transition-colors text-left" onClick={() => SpotifyClient.transferPlaylist(playlist)}>
                     <td>
                       <img src={playlist?.imageUrls[0]} alt="" className="w-16 h-16 p-2 rounded-xl" />
                     </td>
