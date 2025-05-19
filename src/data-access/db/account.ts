@@ -21,6 +21,20 @@ class AccountDb {
         });
         return account.id;
     }
+
+    async getAccountByUserIdAndType(userId: number, accountType: AccountType): Promise<number | undefined> {
+        const account = await this.prisma.account.findFirst({
+            where: {
+                User: {
+                    id: userId
+                },
+                accountType: {
+                    name: accountType
+                }
+            }
+        });
+        return account?.id;
+    }
 }
 
 export default AccountDb;
