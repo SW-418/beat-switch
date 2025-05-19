@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import NavigationBar from "../components/navigation-bar";
 import { getAccessToken, getCodeQueryParameter, getCodeVerifier, getUserProfile, handleLogin, removeCodeQueryParameter } from "../spotify/auth";
 import SpotifyPlaylists from "../components/spotify-playlists";
+import LoginClient from "../login/client";
 
 export default function Transfer() {
     // TODO: Pull these out into spotify related hooks/contexts
@@ -28,39 +29,41 @@ export default function Transfer() {
         removeCodeQueryParameter();
         }
     }, [code]);
+
     useEffect(() => {
         // TODO: Single responsibility refactor
         const tryAuthenticateAndSetProfile = async () => {
-        try {
-            const profile = await getUserProfile();
-            setProfile(profile);
-            return true;
-        } catch(error) {
-            return false;
-        }
+            try {
+                const profile = await getUserProfile();
+                setProfile(profile);
+                await LoginClient.loginWithSpotify(profile.id);
+                return true;
+            } catch(error) {
+                return false;
+            }
         }
     
         const response = async () => {
-        // Check if already authenticated and return if so
-        if (await tryAuthenticateAndSetProfile()) {
-            setLoading(false);
-            return;
-        }
-    
-        // If code isn't set this hasn't been triggered as part of dependencies so return
-        if (!code) {
-            setLoading(false);
-            return;
-        }
+            // Check if already authenticated and return if so
+            if (await tryAuthenticateAndSetProfile()) {
+                setLoading(false);
+                return;
+            }
         
-        // Otherwise get required codes and try to perform authentication
-        const codeVerifier = getCodeVerifier();
+            // If code isn't set this hasn't been triggered as part of dependencies so return
+            if (!code) {
+                setLoading(false);
+                return;
+            }
+            
+            // Otherwise get required codes and try to perform authentication
+            const codeVerifier = getCodeVerifier();
+            
+            if (!codeVerifier) return;
         
-        if (!codeVerifier) return;
-    
-        await getAccessToken(code, codeVerifier);
-        await tryAuthenticateAndSetProfile();
-        setLoading(false);
+            await getAccessToken(code, codeVerifier);
+            await tryAuthenticateAndSetProfile();
+            setLoading(false);
         }
         
         response();

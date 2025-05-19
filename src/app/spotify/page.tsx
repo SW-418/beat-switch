@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getCodeQueryParameter, handleLogin, getCodeVerifier, getAccessToken, getUserProfile, removeCodeQueryParameter } from "./auth";
 import NavigationBar from "../components/navigation-bar";
 import PlaylistGenerator from "../components/spotify-playlist-generator";
+import LoginClient from "../login/client"; 
 
 export default function Spotify() {
   const [code, setCode] = useState('');
@@ -28,6 +29,7 @@ export default function Spotify() {
       try {
         const profile = await getUserProfile();
         setProfile(profile);
+        await LoginClient.loginWithSpotify(profile.id);
         return true;
       } catch(error) {
         return false;
