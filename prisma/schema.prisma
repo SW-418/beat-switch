@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  Accounts  Account[]
+}
+
+model AccountType {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  name      Service   @unique
+  Account   Account[]
+}
+
+model Account {
+  id            Int         @id @default(autoincrement())
+  createdAt     DateTime    @default(now())
+  accountId     String
+  accountType   AccountType @relation(fields: [accountTypeId], references: [id])
+  accountTypeId Int
+  User          User        @relation(fields: [userId], references: [id])
+  userId        Int
+  Playlists     Playlist[]
+}
+
+model Song {
+  id          Int           @id @default(autoincrement())
+  createdAt   DateTime      @default(now())
+  name        String
+  isrc        String
+  album       String
+  releaseDate DateTime
+  duration    Int
+  Artists     Artist[]
+  SongMapping SongMapping[]
+}
+
+model Artist {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  name      String
+  Songs     Song[]
+}
+
+model SongMapping {
+  id                 Int      @id @default(autoincrement())
+  createdAt          DateTime @default(now())
+  OriginalPlaylist   Playlist @relation("OriginalPlaylist", fields: [originalPlaylistId], references: [id])
+  originalPlaylistId Int
+  SyncedPlaylist     Playlist @relation("SyncedPlaylist", fields: [syncedPlaylistId], references: [id])
+  syncedPlaylistId   Int
+  Song               Song     @relation(fields: [songId], references: [id])
+  songId             Int
+  addedAt            DateTime
+  originalServiceId  String
+  syncedServiceId    String
+}
+
+model Playlist {
+  id            Int           @id @default(autoincrement())
+  createdAt     DateTime      @default(now())
+  name          String
+  Account       Account       @relation(fields: [accountId], references: [id])
+  accountId     Int
+  OriginalSongs SongMapping[] @relation("OriginalPlaylist")
+  SyncedSongs   SongMapping[] @relation("SyncedPlaylist")
+}
+
+enum Service {
+  SPOTIFY
+  APPLE_MUSIC
+}
