@@ -4,6 +4,8 @@ export interface Track {
     artists: string[];
     album: string;
     isrc: string;
-    added_at?: string;
-    country_code: string;
+    addedAt?: string;
+    countryCode: string;
+    releaseDate?: string;
+    duration?: number;
 }
