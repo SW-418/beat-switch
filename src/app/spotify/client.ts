@@ -4,6 +4,7 @@ import { Playlist } from "../types/responses/playlist";
 import { SongMapping } from "../types/song-mapping";
 import SongMapper from "../../utils/song-mapper";
 import { createPlaylist, getSongsByISRC, addSongsToPlaylist } from "../apple/client";
+import SyncInitiationFailure from "../types/errors/sync-init-failure";
 
 export class SpotifyClient {
     private likedSongsCache: Track[];
@@ -50,6 +51,17 @@ export class SpotifyClient {
         }
 
         console.log(unmappableSongsByNames);
+    }
+
+    async syncLikedSongs(): Promise<void> {
+        const likedSongsUrl = new URL(`/api/v1/spotify/tracks/sync`, window.location.origin);
+        const likedSongsResponse = await fetch(likedSongsUrl.toString(), {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        })
+        if (likedSongsResponse.status !== 202) throw new SyncInitiationFailure();
     }
 
     // Retrieve all liked Songs from Spotify via our backend

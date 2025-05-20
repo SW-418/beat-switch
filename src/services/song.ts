@@ -11,6 +11,10 @@ class SongService {
     async createSong(track: Track): Promise<number> {
         return await this.songDb.createSong(track);
     }
+
+    async createSongs(tracks: Track[]): Promise<Record<string, number>> {
+        return await this.songDb.createSongs(tracks);
+    }
 }
 
 export default SongService;

@@ -16,6 +16,16 @@ export default function SpotifyPlaylists() {
         setPlaylists(playlists);
     }
 
+    const syncLikedSongs = async () => {
+      try {
+        await SpotifyClient.syncLikedSongs();
+        alert('Liked songs sync initiated');
+      } catch (error) {
+        console.error(error);
+        alert('Failed to initiate liked songs sync - Please try again later');
+      }
+    }
+
     return (
         <div className="w-full transition-all duration-300 ease-in-out mx-auto bg-gray-50 text-gray-800 p-4 rounded-xl shadow-lg">
           <div className="overflow-x-auto">
@@ -28,7 +38,7 @@ export default function SpotifyPlaylists() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-300">
-                <tr key={"create"} className="hover:bg-gray-100 transition-colors text-left" onClick={() => SpotifyClient.transferLikedSongs()}>
+                <tr key={"create"} className="hover:bg-gray-100 transition-colors text-left" onClick={() => syncLikedSongs()}>
                     <td>
                       <img alt="" className="w-16 h-16 p-2 rounded-xl" />
                     </td>
