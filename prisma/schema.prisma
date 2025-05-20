@@ -24,7 +24,7 @@ model AccountType {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
   name      Service   @unique
-  Account   Account[]
+  Accounts  Account[]
 }
 
 model Account {
@@ -39,16 +39,16 @@ model Account {
 }
 
 model Song {
-  id          Int           @id @default(autoincrement())
-  createdAt   DateTime      @default(now())
-  name        String
-  isrc        String
-  album       String
-  releaseDate DateTime
-  duration    Int
-  hash        String        @unique
-  Artists     Artist[]
-  SongMapping SongMapping[]
+  id           Int           @id @default(autoincrement())
+  createdAt    DateTime      @default(now())
+  name         String
+  isrc         String
+  album        String
+  releaseDate  DateTime
+  duration     Int
+  hash         String        @unique
+  Artists      Artist[]
+  SongMappings SongMapping[]
 }
 
 model Artist {
