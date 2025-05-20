@@ -1,10 +1,12 @@
-import { PrismaClient } from '../../generated/prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { AccountType } from '@/app/types/account-types'
+import prisma from "@/data-access/prisma-client";
 
 class AccountDb {
     private prisma: PrismaClient;
+
     constructor() {
-        this.prisma = new PrismaClient();
+        this.prisma = prisma;
     }
 
     async createAccount(userId: number, accountId: string, accountType: AccountType): Promise<number> {

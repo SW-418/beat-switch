@@ -1,10 +1,11 @@
 
-import { PrismaClient } from '../../generated/prisma/client';
+import { PrismaClient } from '@prisma/client';
+import prisma from "@/data-access/prisma-client";
 
 class PlaylistDb {
     private prisma: PrismaClient;
     constructor() {
-        this.prisma = new PrismaClient();
+        this.prisma = prisma;
     }
 
     async createPlaylist(accountId: number, name: string): Promise<number> {

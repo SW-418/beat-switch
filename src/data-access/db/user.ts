@@ -1,9 +1,11 @@
-import { PrismaClient } from '../../generated/prisma/client'
+import { PrismaClient } from '@prisma/client'
+import prisma from "@/data-access/prisma-client";
 
 class UserDb {
     private prisma: PrismaClient;
+
     constructor() {
-        this.prisma = new PrismaClient();
+        this.prisma = prisma;
     }
 
     async getUserByAccountId(accountId: string): Promise<number | undefined> {
