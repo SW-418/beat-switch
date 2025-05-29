@@ -1,8 +1,9 @@
 "use client";
 
+import songs from "../components/songs";
 import { Playlist } from "../types/responses/playlist";
 import { Track } from "../types/responses/track";
-import { SongMapping } from "../types/song-mapping";
+import { Song } from "../types/song-mapping";
 
 const APPLE_MUSIC_API_URL = 'https://api.music.apple.com/v1';
 
@@ -67,18 +68,18 @@ async function getSongsByISRC(songs: Track[]): Promise<Record<string, string>> {
 
 // Gets potential song mappings in Apple Music by ISRC
 // ISRC codes can return multiple songs, e.g. if a song appears on multiple albums such as compilations
-async function getSongMappingsByISRC(songs: Track[]): Promise<Record<string, SongMapping[]>> {
+async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, Song[]>> {
     const batchSize = 20;
     const { developerToken, userToken } = getTokens();
-    const songMappings: Record<string, SongMapping[]> = {};
+    const songMappings: Record<string, Song[]> = {};
 
-    for(let i = 0; i < songs.length + batchSize; i += batchSize) {
-        const batch = songs.slice(i, i + batchSize);
+    for(let i = 0; i < isrcs.length + batchSize; i += batchSize) {
+        const batch = isrcs.slice(i, i + batchSize);
         if (batch.length === 0) break;
 
         // TODO: Storefront should be configurable
         const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/songs`, window.location.origin);
-        url.searchParams.set('filter[isrc]', batch.map(song => song.isrc).join(','));
+        url.searchParams.set('filter[isrc]', batch.join(','));
     
         const response = await fetch(url.toString(), {
             method: 'GET',
@@ -110,7 +111,7 @@ async function getSongMappingsByISRC(songs: Track[]): Promise<Record<string, Son
     return songMappings;
 }
 
-async function getSongMappingsByNames(song: Track): Promise<SongMapping[]> {
+async function getSongMappingsByNames(song: Track): Promise<Song[]> {
     const { developerToken, userToken } = getTokens();
     const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/search`, window.location.origin);
     const artistSearch = song.artists.map(artist => artist.name).join('+');
@@ -128,7 +129,7 @@ async function getSongMappingsByNames(song: Track): Promise<SongMapping[]> {
     const searchResponse = await response.json();
     console.log(searchResponse);
 
-    const mappings: SongMapping[] = [];
+    const mappings: Song[] = [];
     searchResponse?.results?.songs?.data?.forEach((song: any) => {
         mappings.push({
             id: song.id,

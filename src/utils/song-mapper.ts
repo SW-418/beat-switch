@@ -1,16 +1,15 @@
-import { Track } from "@/app/types/responses/track";
-import { SongMapping } from "@/app/types/song-mapping";
+import { Song } from "@/app/types/song-mapping";
 import NoMappingsError from "@/app/types/errors/no-mappings";
 
-class SongMapper implements IMusicMapper<Track, SongMapping> {
+class SongMapper implements IMusicMapper<Song, Song> {
     constructor() { }
 
-    map(original: Track, options: SongMapping[]): SongMapping {
+    map(original: Song, options: Song[]): Song {
         if (options.length === 0) throw new NoMappingsError();
 
         const matches = options.filter(song => 
             song.name === original.name && 
-            song.albumName === original.album
+            song.albumName === original.albumName
         );
         
         if (matches.length === 0) throw new NoMappingsError();

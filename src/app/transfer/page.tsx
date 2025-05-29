@@ -5,6 +5,7 @@ import NavigationBar from "../components/navigation-bar";
 import { getAccessToken, getCodeQueryParameter, getCodeVerifier, getUserProfile, handleLogin, removeCodeQueryParameter } from "../spotify/auth";
 import SpotifyPlaylists from "../components/spotify-playlists";
 import LoginClient from "../login/client";
+import SyncedPlaylists from "../components/synced-playlists";
 
 export default function Transfer() {
     // TODO: Pull these out into spotify related hooks/contexts
@@ -101,33 +102,44 @@ export default function Transfer() {
     }
 
     return (
-        <div className="min-h-screen flex flex-row items-center justify-center font-[family-name:var(--font-geist-sans)] w-[90%] mx-auto text-center">
-            <div className="top-0 absolute pt-4 w-[90%] mx-auto">
+        <div className="min-h-screen flex flex-col">
+            <div className="top-0 pt-4 w-[90%] mx-auto">
                 <NavigationBar />
             </div>
-            <div className="w-[50%] mx-auto">
-                {(!loading && !profile.displayName) && (
-                        <><h1 className="text-4xl font-bold mb-8">Transfer</h1><button
-                        onClick={handleLogin}
-                        className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
-                        >
-                        Connect with Spotify
-                        </button></>
-                )}
-                {(!loading && profile.displayName) && (
-                    <SpotifyPlaylists />
-                )}
-            </div>
+            <div className="flex-1 flex flex-col md:flex-row w-[90%] mx-auto pt-20 gap-8">
+                <div className="w-full md:w-1/2">
+                    {(!loading && !profile.displayName) && (
+                        <div className="text-center">
+                            <h1 className="text-4xl font-bold mb-8">Transfer</h1>
+                            <button
+                                onClick={handleLogin}
+                                className="bg-green-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-green-600 transition-colors"
+                            >
+                                Connect with Spotify
+                            </button>
+                        </div>
+                    )}
+                    {(!loading && profile.displayName) && (
+                        <SpotifyPlaylists />
+                    )}
+                </div>
 
-            <div className="w-[50%] mx-auto">
-                {(!loading && !isAuthenticatedWithApple) && (
-                    <><h1 className="text-4xl font-bold mb-8">Transfer</h1><button
-                    onClick={handleAppleLogin}
-                    className="bg-[#FA2D48] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#FA2D75] transition-colors"
-                    >
-                    Connect with Apple Music
-                    </button></>
-                )}
+                <div className="w-full md:w-1/2">
+                    {(!loading && !isAuthenticatedWithApple) && (
+                        <div className="text-center">
+                            <h1 className="text-4xl font-bold mb-8">Transfer</h1>
+                            <button
+                                onClick={handleAppleLogin}
+                                className="bg-[#FA2D48] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#FA2D75] transition-colors"
+                            >
+                                Connect with Apple Music
+                            </button>
+                        </div>
+                    )}
+                    {(!loading && isAuthenticatedWithApple) && (
+                        <SyncedPlaylists />
+                    )}
+                </div>
             </div>
         </div>
     );  

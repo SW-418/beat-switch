@@ -1,57 +1,10 @@
-import { getSongMappingsByISRC, getSongMappingsByNames } from "../apple/client";
 import { Track } from "../types/responses/track";
 import { Playlist } from "../types/responses/playlist";
-import { SongMapping } from "../types/song-mapping";
-import SongMapper from "../../utils/song-mapper";
 import { createPlaylist, getSongsByISRC, addSongsToPlaylist } from "../apple/client";
 import SyncInitiationFailure from "../types/errors/sync-init-failure";
 
 export class SpotifyClient {
-    private likedSongsCache: Track[];
-    private isrcMappingsCache: Record<string, SongMapping[]>;
-
-    constructor() { 
-        // Temp cache to prevent pull from Spotify every time - Will likely have a DB in the future
-        this.likedSongsCache = [];
-        // Temp cache to prevent pull from Apple Music every time - Will likely have a DB in the future
-        this.isrcMappingsCache = {};
-    }
-
-    async transferLikedSongs() {
-        const songsInCache = this.likedSongsCache.length > 0;
-        const likedSongs = songsInCache ? this.likedSongsCache : await this.getLikedSongs();
-        if (!songsInCache) this.likedSongsCache = likedSongs;
-
-        const isrcMappingsInCache = Object.keys(this.isrcMappingsCache).length > 0;
-        const songMappings = isrcMappingsInCache ? this.isrcMappingsCache : await getSongMappingsByISRC(likedSongs);
-        if (!isrcMappingsInCache) this.isrcMappingsCache = songMappings;
-
-        const unmappableSongs: Track[] = [];
-        for (const song of likedSongs) {
-            const potentialMappings = songMappings[song.isrc];
-            try {
-                const mappedSong = SongMapper.map(song, potentialMappings);
-            } catch (error) {
-                unmappableSongs.push(song);
-            }
-        }
-
-        console.log(unmappableSongs);
-
-        const unmappableSongsByNames: Track[] = [];
-        for (const song of unmappableSongs) {
-            const potentialMappings = await getSongMappingsByNames(song);
-            console.log(song);
-            console.log(potentialMappings);
-            try {
-                const mappedSong = SongMapper.map(song, potentialMappings);
-            } catch (error) {
-                unmappableSongsByNames.push(song);
-            }
-        }
-
-        console.log(unmappableSongsByNames);
-    }
+    constructor() { }
 
     async syncLikedSongs(): Promise<void> {
         const likedSongsUrl = new URL(`/api/v1/spotify/tracks/sync`, window.location.origin);
