@@ -17,6 +17,9 @@ Future functionality:
 ## Setup
 
 ```bash
+# Start the database (if using Docker)
+docker compose up -d
+
 # Install dependencies
 yarn
 ```
