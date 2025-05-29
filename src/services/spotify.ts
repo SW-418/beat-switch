@@ -6,16 +6,20 @@ import AccountService from "./account";
 import AccountNotFoundError from "@/app/types/errors/account-not-found";
 import PlaylistService from "./playlist";
 import SongService from "./song";
+import SongMappingService from "./song-mapping";
+import { AccountType } from "@/app/types/account-types";
 
 class SpotifyService implements IMusicService {
   private accountService: AccountService;
   private playlistService: PlaylistService;
   private songService: SongService;
+  private songMappingService: SongMappingService;
 
   constructor() {
     this.accountService = new AccountService();
     this.playlistService = new PlaylistService();
     this.songService = new SongService();
+    this.songMappingService = new SongMappingService();
   }
 
   async getAllSavedTracks(accessToken: string): Promise<Track[]> {
@@ -37,6 +41,7 @@ class SpotifyService implements IMusicService {
 
     const allTracks = await Promise.all(trackPromises);
     savedTracks.push(...allTracks.flat());
+    console.log(`Retrieved ${savedTracks.length} saved tracks from Spotify`);
 
     return savedTracks;
   }
@@ -100,16 +105,27 @@ class SpotifyService implements IMusicService {
     const spotifyAccountId = await this.accountService.getSpotifyAccount(userId);
     if (!spotifyAccountId) throw new AccountNotFoundError();
 
-    let savedPlaylistId = await this.playlistService.getSavedPlaylist(spotifyAccountId);
-    if (!savedPlaylistId) {
-      savedPlaylistId = await this.playlistService.createPlaylist(spotifyAccountId, 'SAVED');
-    }
+    // Create a new playlist on each sync - Essentially acts as a new version but we will want to improve this once we have a working PoC
+    const savedPlaylistId = await this.playlistService.createPlaylist(spotifyAccountId, 'SAVED');
     
-    // Save songs to Song table and Artists to Artists table
+    // Save songs to Song table and Artists to Artists table (if they don't already exist)
     const songMap = await this.songService.createSongs(savedTracks);
     
-    // Create mapping for each song and add to Song Mapping table
-    
+    try {
+      // Create mapping for each song and add to Song Mapping table
+      await this.songMappingService.createSongMappings(savedTracks, songMap, savedPlaylistId);
+    } catch (error) {
+      console.error('Failed to create song mappings', error);
+      // Mark sync as failed if error encountered
+      await this.playlistService.updatePlaylistToSyncFailed(savedPlaylistId);
+      throw error;
+    }
+
+    // TODO: Both of these may be unecessary for now
+    // Mark playlist as successfully synced    
+    await this.playlistService.updatePlaylistToSynced(savedPlaylistId);
+    // Mark playlist as being mapped
+    await this.playlistService.updatePlaylistToMapping(savedPlaylistId);
   }
     
 
