@@ -59,27 +59,44 @@ model Artist {
 }
 
 model SongMapping {
-  id                 Int      @id @default(autoincrement())
-  createdAt          DateTime @default(now())
-  OriginalPlaylist   Playlist @relation("OriginalPlaylist", fields: [originalPlaylistId], references: [id])
+  id                 Int              @id @default(autoincrement())
+  createdAt          DateTime         @default(now())
+  OriginalPlaylist   Playlist         @relation("OriginalPlaylist", fields: [originalPlaylistId], references: [id])
   originalPlaylistId Int
-  SyncedPlaylist     Playlist @relation("SyncedPlaylist", fields: [syncedPlaylistId], references: [id])
-  syncedPlaylistId   Int
-  Song               Song     @relation(fields: [songId], references: [id])
+  SyncedPlaylist     Playlist?        @relation("SyncedPlaylist", fields: [syncedPlaylistId], references: [id])
+  syncedPlaylistId   Int?
+  Song               Song             @relation(fields: [songId], references: [id])
   songId             Int
   addedAt            DateTime
   originalServiceId  String
-  syncedServiceId    String
+  syncedServiceId    String?
+  state              SongMappingState @default(READY_TO_MAP)
 }
 
 model Playlist {
-  id            Int           @id @default(autoincrement())
-  createdAt     DateTime      @default(now())
+  id            Int               @id @default(autoincrement())
+  createdAt     DateTime          @default(now())
   name          String
-  Account       Account       @relation(fields: [accountId], references: [id])
+  Account       Account           @relation(fields: [accountId], references: [id])
   accountId     Int
-  OriginalSongs SongMapping[] @relation("OriginalPlaylist")
-  SyncedSongs   SongMapping[] @relation("SyncedPlaylist")
+  OriginalSongs SongMapping[]     @relation("OriginalPlaylist")
+  SyncedSongs   SongMapping[]     @relation("SyncedPlaylist")
+  status        PlaylistSyncState @default(SYNCING)
+}
+
+enum PlaylistSyncState {
+  SYNCING
+  SYNCED
+  SYNC_FAILED
+  MAPPING
+  MAPPED
+}
+
+enum SongMappingState {
+  READY_TO_MAP
+  MAPPED
+  MANUAL_MAPPING_REQUIRED
+  SKIPPED
 }
 
 enum Service {
