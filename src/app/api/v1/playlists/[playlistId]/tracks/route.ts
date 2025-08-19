@@ -4,7 +4,7 @@ import { PlaylistNotFoundError, PlaylistUnauthorizedError } from "@/app/types/er
 
 const playlistService = new PlaylistService();
 
-async function GET(request: NextRequest, { params }: { params: { playlistId: string } }): Promise<NextResponse> {
+async function GET(request: NextRequest, { params }: { params: Promise<{ playlistId: string }> }): Promise<NextResponse> {
     const { playlistId } = await params;
     if (!playlistId) return NextResponse.json({ message: 'Playlist ID required' }, { status: 400 });
 
