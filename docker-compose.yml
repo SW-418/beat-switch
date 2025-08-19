@@ -1,7 +1,7 @@
 services:
     db:
         image: postgres:15-alpine
-        container_name: postgres
+        container_name: bs-postgres
         environment:
             POSTGRES_USER: beat-switch
             POSTGRES_PASSWORD: beat-switch
