@@ -70,7 +70,7 @@ export class SpotifyClient {
       // Update song objects with external IDs (if present)
       songs.forEach(song => {
         song.external_id = songMappings[song.isrc];
-        if (!song.external_id) console.error(`No external ID found for song: ${song.name} - ${song.artists.map(artist => artist.name).join(', ')}`);
+        if (!song.external_id) console.error(`No external ID found for song: ${song.name} - ${song.artists.join(', ')}`);
       });
 
       // Add tracks to the playlist in Apple Music

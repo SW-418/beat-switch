@@ -4,8 +4,8 @@ import { PlaylistNotFoundError, PlaylistUnauthorizedError } from "@/app/types/er
 
 const playlistService = new PlaylistService();
 
-async function GET(request: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
-    const { id: playlistId } = await params;
+async function GET(request: NextRequest, { params }: { params: { playlistId: string } }): Promise<NextResponse> {
+    const { playlistId } = await params;
     if (!playlistId) return NextResponse.json({ message: 'Playlist ID required' }, { status: 400 });
 
     const userId = Number(request.cookies.get('userId')?.value);

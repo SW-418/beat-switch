@@ -4,12 +4,12 @@ import SongMappingService from "@/services/song-mapping";
 
 const songMappingService = new SongMappingService();
 
-async function PATCH(request: NextRequest, { params }: { params: Promise<{ playlistId: string, songMappingId: string }> }): Promise<NextResponse> {
-    const { playlistId, songMappingId } = await params;
+async function PATCH(request: NextRequest, { params }: { params: Promise<{ playlistId: string, trackId: string }> }): Promise<NextResponse> {
+    const { playlistId, trackId } = await params;
     const playlistIdNum = Number(playlistId);
-    const songMappingIdNum = Number(songMappingId);
+    const trackIdNum = Number(trackId);
 
-    if (Number.isNaN(playlistIdNum) || Number.isNaN(songMappingIdNum)) {
+    if (Number.isNaN(playlistIdNum) || Number.isNaN(trackIdNum)) {
         return NextResponse.json({ message: 'Invalid path parameters' }, { status: 400 });
     }
 
@@ -21,7 +21,7 @@ async function PATCH(request: NextRequest, { params }: { params: Promise<{ playl
     try {
         // TODO: Handle deserialization and validation better
         const update = await request.json() as PlaylistMappingUpdate;
-        await songMappingService.updateSongMapping(playlistIdNum, songMappingIdNum, update);
+        await songMappingService.updateSongMapping(playlistIdNum, trackIdNum, update);
         return NextResponse.json({}, { status: 204 });
     } catch (Error) {
         console.error(Error);
