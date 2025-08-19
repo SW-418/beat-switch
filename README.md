@@ -17,11 +17,34 @@ Future functionality:
 ## Setup
 
 ```bash
-# Start the database (if using Docker)
+# 1. Start the database
 docker compose up -d
 
-# Install dependencies
+# 2. Install dependencies
 yarn
+
+# 3. Setup database schema and generate Prisma client
+yarn db:setup
+
+# 4. Seed database with initial data
+yarn db:seed
+```
+
+### Environment Variables
+
+Create a `.env` file in the root directory with:
+
+```env
+DATABASE_URL="postgresql://beat-switch:beat-switch@localhost:5433/beat-switch"
+
+# Spotify API credentials
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
+
+# Apple Music API credentials
+APPLE_MUSIC_TEAM_ID=your_apple_team_id
+APPLE_MUSIC_KEY_ID=your_apple_music_key_id
+# Note: Also place your Apple Music private key file at: keys/apple.p8
 ```
 
 ## Development
