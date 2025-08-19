@@ -1,5 +1,5 @@
-import { Track } from "../types/responses/track";
-import { Playlist } from "../types/responses/playlist";
+import { Track } from "@/app/types/api/responses/track";
+import { Playlist } from "@/app/types/api/responses/playlist";
 import { createPlaylist, getSongsByISRC, addSongsToPlaylist } from "../apple/client";
 import SyncInitiationFailure from "../types/errors/sync-init-failure";
 

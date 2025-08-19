@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { SelectableDropdown } from "./selectable-dropdown";
 import { DropdownOption } from "./selectable-dropdown";
-import { Profile } from "../types/responses/profile";
-import { Track } from "../types/responses/track";
+import { Profile } from "@/app/types/api/responses/profile";
+import { Track } from "@/app/types/api/responses/track";
 
 export default function SpotifyPlaylistGenerator({ profile }: { profile: Profile }) {
     const songTypes: DropdownOption<string>[] = [

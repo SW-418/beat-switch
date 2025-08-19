@@ -1,4 +1,4 @@
-import { Profile } from "../types/responses/profile";
+import { Profile } from "@/app/types/api/responses/profile";
 import UnauthorizedError from "../types/errors/unauthorized";
 
 async function handleLogin(): Promise<void> {

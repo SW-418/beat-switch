@@ -1,13 +1,12 @@
 import SpotifyUserApiClient from "@/data-access/spotify/users";
 import { Track } from "./track";
 import { SavedTrackObject, UsersTopTracksResponse, CreatePlaylistResponse, AddTracksToPlaylistResponse, ListOfCurrentUsersPlaylistsResponse, PlayListTrackObject, ArtistObjectSimplified } from "spotify-api";
-import { Playlist } from "@/app/types/responses/playlist";
+import { Playlist } from "@/app/types/api/responses/playlist";
 import AccountService from "./account";
 import AccountNotFoundError from "@/app/types/errors/account-not-found";
 import PlaylistService from "./playlist";
 import SongService from "./song";
 import SongMappingService from "./song-mapping";
-import { AccountType } from "@/app/types/account-types";
 
 class SpotifyService implements IMusicService {
   private accountService: AccountService;

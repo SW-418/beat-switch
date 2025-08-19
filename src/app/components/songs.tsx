@@ -1,4 +1,4 @@
-import { Track } from "../types/responses/track"
+import { Track } from "@/app/types/api/responses/track"
 import { useEffect, useState } from "react";
 
 export default function Songs() {

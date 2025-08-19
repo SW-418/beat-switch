@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { SelectableDropdown } from "./selectable-dropdown";
 import { DropdownOption } from "./selectable-dropdown";
-import { Track } from "../types/responses/track";
+import { Track } from "@/app/types/api/responses/track";
 
 export default function ApplePlaylistGenerator({ musicKit }: { musicKit: typeof window.MusicKit }) {
     const songTypes: DropdownOption<string>[] = [

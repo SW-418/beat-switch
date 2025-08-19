@@ -1,24 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SyncPlaylist } from "../types/responses/sync-playlist";
+import { SyncPlaylist } from "@/app/types/api/responses/sync-playlist";
 import TransferClient from "../transfer/client";
+import PlaylistClient from "@/app/playlist/client";
 
 // TODO: Refactor this w/ DI and react context/hooks
 const transferClient = new TransferClient();
+const playListClient = new PlaylistClient();
 
 export default function SyncedPlaylists() {
     const [playlists, setPlaylists] = useState<SyncPlaylist[]>([]);
 
-    useEffect(() => {
-        retrievePlaylists();
-    }, []);
+    useEffect(() => { retrievePlaylists(); }, []);
 
     const retrievePlaylists = async () => {
-        const url = '/api/v1/playlists';
-        const response = await fetch(url);
-        const playlists = await response.json();
-        setPlaylists(playlists);
+        setPlaylists(await playListClient.getSyncPlaylists());
     }
 
     const mapPlaylistSongs = async (playlist: SyncPlaylist) => {

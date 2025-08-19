@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Track } from "../types/responses/track";
+import { Track } from "@/app/types/api/responses/track";
 
 export default function TopSongs() {
   const [topSongs, setTopSongs] = useState([]);

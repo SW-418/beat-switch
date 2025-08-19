@@ -7,6 +7,7 @@ class SongMapper implements IMusicMapper<Song, Song> {
     map(original: Song, options: Song[]): Song {
         if (options.length === 0) throw new NoMappingsError();
 
+        // TODO: Improve mapping logic
         const matches = options.filter(song => 
             song.name === original.name && 
             song.albumName === original.albumName

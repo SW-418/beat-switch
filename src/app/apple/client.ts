@@ -1,8 +1,8 @@
 "use client";
 
 import songs from "../components/songs";
-import { Playlist } from "../types/responses/playlist";
-import { Track } from "../types/responses/track";
+import { Playlist } from "@/app/types/api/responses/playlist";
+import { Track } from "@/app/types/api/responses/track";
 import { Song } from "../types/song-mapping";
 
 const APPLE_MUSIC_API_URL = 'https://api.music.apple.com/v1';

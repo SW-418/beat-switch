@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Playlist } from "../types/responses/playlist";
+import { Playlist } from "@/app/types/api/responses/playlist";
 import SpotifyClient from "../spotify/client";
 
 export default function SpotifyPlaylists() {
