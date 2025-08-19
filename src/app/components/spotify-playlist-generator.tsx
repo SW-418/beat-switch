@@ -5,6 +5,7 @@ import { SelectableDropdown } from "./selectable-dropdown";
 import { DropdownOption } from "./selectable-dropdown";
 import { Profile } from "@/app/types/api/responses/profile";
 import { Track } from "@/app/types/api/responses/track";
+import spotifyClient from "../spotify/client";
 
 export default function SpotifyPlaylistGenerator({ profile }: { profile: Profile }) {
     const songTypes: DropdownOption<string>[] = [
@@ -21,64 +22,62 @@ export default function SpotifyPlaylistGenerator({ profile }: { profile: Profile
     const [selected, setSelected] = useState<DropdownOption<string>>(songTypes[0]);
     const [count, setCount] = useState<DropdownOption<number>>(songCount[0]);
     const [songs, setSongs] = useState<Track[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const retrieveTopSongs = async (count: number) => {
-        const url = new URL("/api/v1/spotify/top-tracks", window.location.origin);
-        url.searchParams.set("limit", count.toString());
-        url.searchParams.set("offset", "0");
-        const response = await fetch(url.toString(), {
-          method: "GET" ,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        })
-        const data = await response.json();
-        setSongs(data);
-      }
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await spotifyClient.getTopTracks(count);
+            setSongs(data);
+        } catch (error) {
+            console.error('Error fetching top songs:', error);
+            setError('Failed to fetch top songs');
+            setSongs([]);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const retrieveAllSongs = async (count: number) => {
-        const url = new URL("/api/v1/spotify/tracks", window.location.origin);
-        url.searchParams.set("limit", count.toString());
-        url.searchParams.set("offset", "0");
-        const response = await fetch(url.toString(), {
-            method: "GET",
-            headers: {
-            "Content-Type": "application/json",
-            },
-        })
-        const data = await response.json();
-        setSongs(data);
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await spotifyClient.getAllTracks(count);
+            setSongs(data);
+        } catch (error) {
+            console.error('Error fetching all songs:', error);
+            setError('Failed to fetch songs');
+            setSongs([]);
+        } finally {
+            setLoading(false);
+        }
     }
 
     const createPlaylist = async () => {
-      // Create new playlist
-        const playlistCreationUrl = new URL("/api/v1/spotify/playlists", window.location.origin);
-        const response = await fetch(playlistCreationUrl.toString(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: "Test Playlist",
-            userId: profile.id,
-            description: "Created by Beat Switch"
-          })
-        })
-        const data = await response.json();
-        const playlistId = data.id;
+        try {
+            setLoading(true);
+            setError(null);
+            
+            // Create new playlist
+            const playlist = await spotifyClient.createPlaylist(
+                "Test Playlist",
+                profile.id,
+                "Created by Beat Switch"
+            );
 
-        // Add current songs to new playlist
-        const playlistAddUrl = new URL(`/api/v1/spotify/playlists/${playlistId}/tracks`, window.location.origin);
-        const addResponse = await fetch(playlistAddUrl.toString(), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            uris: songs.map(song => `spotify:track:${song.id}`)
-          })
-        })
-        const playlistAddResponse = await addResponse.json();
+            // Add current songs to new playlist
+            const trackUris = songs.map(song => `spotify:track:${song.id}`);
+            await spotifyClient.addTracksToPlaylist(playlist.id, trackUris);
+            
+            // TODO: Show success message or redirect to playlist
+        } catch (error) {
+            console.error('Error creating playlist:', error);
+            setError('Failed to create playlist');
+        } finally {
+            setLoading(false);
+        }
     }
 
     useEffect(() => {
@@ -98,28 +97,47 @@ export default function SpotifyPlaylistGenerator({ profile }: { profile: Profile
             <SelectableDropdown options={songTypes} selected={selected} setSelected={setSelected} />
             <SelectableDropdown options={songCount} selected={count} setSelected={setCount} />
             <div className="flex-1 pb-2">
-              <button onClick={createPlaylist} className="w-full bg-green-500 text-white p-1.5 text-sm/6 rounded-lg hover:bg-green-600 transition-colors">Generate</button>
+              <button 
+                onClick={createPlaylist} 
+                disabled={loading || songs.length === 0}
+                className="w-full bg-green-500 text-white p-1.5 text-sm/6 rounded-lg hover:bg-green-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Loading...' : 'Generate'}
+              </button>
             </div>
           </div>
+          
+          {error && (
+            <div className="mt-2 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+              {error}
+            </div>
+          )}
+          
           <div className="h-[500px] overflow-x-auto">
-            <table className="w-full table-auto min-w-full">
-              <thead className="bg-gray-200">
-                <tr>
-                  <th className="p-2 text-left text-gray-600">#</th>
-                  <th className="p-2 text-left text-gray-600">Song</th>
-                  <th className="p-2 text-left text-gray-600">Artist</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-300">
-                {songs.map((song: Track, index: number) => (
-                  <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
-                    <td className="p-2 text-gray-400">{index + 1}</td>
-                    <td className="p-2 font-medium text-gray-900">{song.name}</td>
-                    <td className="p-2 text-gray-700">{song.artists.map((artist: any) => artist.name).join(", ")}</td>
+            {loading ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-gray-500">Loading tracks...</div>
+              </div>
+            ) : (
+              <table className="w-full table-auto min-w-full">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="p-2 text-left text-gray-600">#</th>
+                    <th className="p-2 text-left text-gray-600">Song</th>
+                    <th className="p-2 text-left text-gray-600">Artist</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-300">
+                  {songs.map((song: Track, index: number) => (
+                    <tr key={song.id} className="hover:bg-gray-100 transition-colors text-left">
+                      <td className="p-2 text-gray-400">{index + 1}</td>
+                      <td className="p-2 font-medium text-gray-900">{song.name}</td>
+                      <td className="p-2 text-gray-700">{song.artists.map((artist: string) => artist).join(", ")}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       );
