@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.4",
-    "@prisma/client": "^6.8.2",
+    "@prisma/client": "^6.13.0",
     "@types/spotify-api": "^0.0.25",
     "dotenv": "^16.5.0",
     "fetch-retry": "^6.0.0",
