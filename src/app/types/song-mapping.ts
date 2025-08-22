@@ -1,7 +1,7 @@
 import { SongMappingState } from "@/generated/prisma";
 
 export interface Song {
-    id: string;
+    id: number;
     isrc: string;
     name: string;
     albumName: string;
@@ -15,6 +15,7 @@ export interface SongMapping extends Song {
     state: SongMappingState;
 }
 
+// TODO: This needs cleaning up badly it's hella confusing
 export type SongMappingWithSong = SongMapping & {
     Song: {
       id: number;

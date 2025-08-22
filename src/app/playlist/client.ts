@@ -12,7 +12,7 @@ class PlaylistClient {
     }
 
     async mapPlaylistSongMapping(playlistId: number, songMappingId: number, songMapping: string): Promise<void> {
-        const url = `/api/v1/playlists/${playlistId}/${songMappingId}`;
+        const url = `/api/v1/playlists/${playlistId}/songs/${songMappingId}`;
         const requestBody: PlaylistMappingUpdate = {
             mappedSongId: songMapping,
             songMappingState: SongMappingState.MAPPED,

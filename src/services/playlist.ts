@@ -1,9 +1,9 @@
-import { PlaylistNotFoundError, PlaylistUnauthorizedError } from "@/app/types/errors/playlist-errors";
+import {PlaylistNotFoundError, PlaylistUnauthorizedError} from "@/app/types/errors/playlist-errors";
 import PlaylistDb from "@/data-access/db/playlist";
-import { Account, Playlist, PlaylistSyncState } from "@/generated/prisma";
+import {Account, Playlist, PlaylistSyncState} from "@/generated/prisma";
 import SongMappingService from "./song-mapping";
-import { SongMappingWithSong } from "@/app/types/song-mapping";
-    
+import {SongMappingWithSong} from "@/app/types/song-mapping";
+
 class PlaylistService {
     private playlistDb: PlaylistDb;
     private songMappingService: SongMappingService;
@@ -45,8 +45,7 @@ class PlaylistService {
         if (!playlist) throw new PlaylistNotFoundError(playlistId);
         if (playlist.Account?.userId !== userId) throw new PlaylistUnauthorizedError(userId, playlistId);
 
-        const tracks = await this.songMappingService.getSongMappings(playlistId, unmappedOnly);
-        return tracks;
+        return await this.songMappingService.getSongMappings(playlistId, unmappedOnly);
     }
 
     private async updatePlaylistStatus(playlistId: number, status: PlaylistSyncState): Promise<void> {

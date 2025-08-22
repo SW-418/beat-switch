@@ -23,8 +23,8 @@ async function GET(request: NextRequest, { params }: { params: Promise<{ playlis
             case PlaylistUnauthorizedError:
                 return NextResponse.json({ message: 'Not authorized' }, { status: 401 });
             default:
-                console.error('Failed to retrieve playlist tracks', error);
-                return NextResponse.json({ message: 'Failed to retrieve playlist tracks' }, { status: 500 });
+                console.error('Failed to retrieve playlist songs', error);
+                return NextResponse.json({ message: 'Failed to retrieve playlist songs' }, { status: 500 });
         }
     }
 }

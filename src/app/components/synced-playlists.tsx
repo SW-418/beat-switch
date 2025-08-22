@@ -18,7 +18,7 @@ export default function SyncedPlaylists() {
         setPlaylists(await playListClient.getSyncPlaylists());
     }
 
-    const mapPlaylistSongs = async (playlist: SyncPlaylist) => {
+    const mapPlaylistSongs = (playlist: SyncPlaylist) => {
         transferClient.mapPlaylistSongs(playlist);
     }
 

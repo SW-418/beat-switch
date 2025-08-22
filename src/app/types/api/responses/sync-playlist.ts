@@ -1,6 +1,6 @@
 
 export interface SyncPlaylist {
-    id: string;
+    id: number;
     name: string;
     status: string;
 }

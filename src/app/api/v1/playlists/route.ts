@@ -16,7 +16,7 @@ async function GET(request: NextRequest) {
     const responsePlaylists = playlists
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .map(p => ({
-        id: p.id.toString(),
+        id: p.id,
         name: p.name,
         status: p.status
     }) satisfies SyncPlaylist);

@@ -71,6 +71,7 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
     const batchSize = 20;
     const { developerToken, userToken } = getTokens();
     const songMappings: Record<string, Song[]> = {};
+    isrcs.forEach(isrc => songMappings[isrc] = [])
 
     for(let i = 0; i < isrcs.length + batchSize; i += batchSize) {
         const batch = isrcs.slice(i, i + batchSize);
@@ -106,7 +107,6 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
             });
         });
     }
-
     return songMappings;
 }
 

@@ -77,21 +77,18 @@ class SongMappingDb {
 
     async updateSongMapping(playlistId: number, songMappingId: number, mappedSongId?: string, songMappingState?: SongMappingState): Promise<void> {
         const songMappingUpdate: SongMappingUpdateInput = {}
-        // Prisma is an ORM so prevents SQL injection, but we probably want to validate the id
-        // to ensure it matches a Spotify/Apple format
+
         if (typeof mappedSongId === 'string' && mappedSongId.trim().length > 0) { songMappingUpdate.syncedServiceId = mappedSongId }
         if (songMappingState) { songMappingUpdate.state = songMappingState }
 
-        this.prisma.$transaction(async (tx: PrismaClient) => {
-            tx.songMapping.update({
+        await this.prisma.$transaction(async (tx: PrismaClient) => {
+            await tx.songMapping.update({
                 where: {
+                    id: songMappingId,
                     originalPlaylistId: playlistId,
-                    songId: songMappingId,
                 },
-                update: {
-                    songMappingUpdate
-                }
-            })
+                data: songMappingUpdate
+            });
         })
     }
 }

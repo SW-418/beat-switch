@@ -1,16 +1,16 @@
-import { Song } from "@/app/types/song-mapping";
+import {Song, SongMappingWithSong} from "@/app/types/song-mapping";
 import NoMappingsError from "@/app/types/errors/no-mappings";
 
 class SongMapper implements IMusicMapper<Song, Song> {
     constructor() { }
 
-    map(original: Song, options: Song[]): Song {
-        if (options.length === 0) throw new NoMappingsError();
+    map(original: SongMappingWithSong, options: Song[]): Song {
+        if (options === undefined || options === null || options.length === 0) throw new NoMappingsError();
 
         // TODO: Improve mapping logic
         const matches = options.filter(song => 
-            song.name === original.name && 
-            song.albumName === original.albumName
+            song.name === original.Song.name &&
+            song.albumName === original.Song.album
         );
         
         if (matches.length === 0) throw new NoMappingsError();
@@ -23,4 +23,5 @@ interface IMusicMapper<T, U> {
     map(original: T, options: U[]): U;
 }
 
-export default new SongMapper();
+const songMapper = new SongMapper();
+export default songMapper;
