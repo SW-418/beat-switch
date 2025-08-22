@@ -126,8 +126,7 @@ class SpotifyService implements IMusicService {
     // Mark playlist as being mapped
     await this.playlistService.updatePlaylistToMapping(savedPlaylistId);
   }
-    
-
+  
   async getTopTracks(accessToken: string, limit: number, offset: number): Promise<Track[]> {
     return await SpotifyUserApiClient.getTopTracks(accessToken, limit, offset).then(t => this.mapTopTracks(t.items));
   }

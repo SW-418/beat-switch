@@ -1,21 +1,23 @@
 import { Track } from "@/services/track";
-import { PrismaClient, Prisma } from "@prisma/client"
+import { PrismaClient } from "@prisma/client"
 import HashGenerator from "@/data-access/hash-generator";
 import prisma from "@/data-access/prisma-client";
+import ArtistDb from "@/data-access/db/artist";
 
 class SongDb {
     private prisma: PrismaClient;
     private hashGenerator: HashGenerator;
+    private artistDb: ArtistDb;
 
     constructor() {
         this.prisma = prisma;
         this.hashGenerator = new HashGenerator();
+        this.artistDb = new ArtistDb();
     }
 
-    async createSong(track: Track, tx?: PrismaClient): Promise<number> {
+    async createSongWithHash(track: Track, hash: string, tx?: PrismaClient): Promise<number> {
         try {
             const client = tx || this.prisma;
-            const hash = await this.hashGenerator.generateTrackHash(track);
             const song = await client.song.upsert({
                 where: {
                     hash: hash
@@ -28,17 +30,16 @@ class SongDb {
                     duration: track.duration,
                     hash: hash,
                     Artists: {
-                        connectOrCreate: track.artists.map(artistName => ({
-                            where: { name: artistName },
-                            create: { name: artistName }
+                        connect: track.artists.map(artistName => ({
+                            name: artistName
                         }))
                     }
                 },
                 update: {}
             });
             return song.id;
-        } catch(error: any) {
-            console.error("Failed to create song", error.code);
+        } catch(error) {
+            console.error("Failed to create song", error);
             throw error;
         }
     }
@@ -46,26 +47,24 @@ class SongDb {
     async createSongs(tracks: Track[]): Promise<Record<string, number>> {
         const trackMap: Record<string, number> = {};
         
+        // Pre-compute expensive operations outside transaction
         const allArtists = Array.from(new Set(tracks.flatMap(track => track.artists)));
+        const trackHashes = await Promise.all(
+            tracks.map(track => this.hashGenerator.generateTrackHash(track))
+        );
 
-        // Create artists and songs in transaction for atomicity, but worse performance
-        // TODO: Extract artist creation to ArtistDb
+        // Fast transaction with pre-computed data
         await this.prisma.$transaction(async (tx: PrismaClient) => {
-            await tx.artist.createMany({
-                data: allArtists.map(artistName => ({ name: artistName })),
-                skipDuplicates: true
-            }).catch((error: any) => {
-                console.error("Failed to create artists", error.code);
-                throw error;
-            });
+            await this.artistDb.createArtists(allArtists, tx);
 
             for (let i = 0; i < tracks.length; i++) {
                 const track = tracks[i];
-                const id = await this.createSong(track, tx);
+                const hash = trackHashes[i];
+                const id = await this.createSongWithHash(track, hash, tx);
                 trackMap[track.id] = id;
             }
         }, {
-            timeout: 30000
+            timeout: 60000
         });
 
         return trackMap;
