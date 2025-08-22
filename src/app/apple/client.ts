@@ -1,6 +1,5 @@
 "use client";
 
-import songs from "../components/songs";
 import { Playlist } from "@/app/types/api/responses/playlist";
 import { Track } from "@/app/types/api/responses/track";
 import { Song } from "../types/song-mapping";
@@ -91,7 +90,7 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
         });
         const mappingResponse = await response.json();
 
-        // TODO: Extrac to mapping class
+        // TODO: Extract to mapping class
         mappingResponse.data.forEach((song: any) => {
             if (!song.attributes.isrc) { console.error(`No ISRC found for song: ${song}`); }
             if (!songMappings[song.attributes.isrc]) { songMappings[song.attributes.isrc] = []; }
@@ -183,14 +182,14 @@ function getTokens(): {developerToken: string, userToken: string} {
 
 function getDeveloperToken(): string {
     if (!window || !window.MusicKit) {
-        throw new Error('MusicKit SDK not loaded');
+        throw new Error('MusicKit SDK not loaded. Please refresh the page.');
     }
 
     const musicKit = window.MusicKit.getInstance();
     const developerToken = musicKit.developerToken;
 
     if (!developerToken) {
-        throw new Error('Developer token not found');
+        throw new Error('Developer token not found. MusicKit may not be properly configured.');
     }
 
     return developerToken;
@@ -198,15 +197,14 @@ function getDeveloperToken(): string {
 
 function getUserToken(): string {
     if (!window || !window.MusicKit) {
-        throw new Error('MusicKit SDK not loaded');
+        throw new Error('MusicKit SDK not loaded. Please refresh the page.');
     }
 
     const musicKit = window.MusicKit.getInstance();
     const userToken = musicKit.musicUserToken;
 
-
     if (!userToken) {
-        throw new Error('User token not found');
+        throw new Error('User token not found. Please authenticate with Apple Music.');
     }
 
     return userToken;

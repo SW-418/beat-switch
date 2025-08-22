@@ -25,13 +25,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+        <head>
+            <title>Beat Switch</title>
+            {/* Required for Apple MusicKit */}
+            <Script
+                src="https://js-cdn.music.apple.com/musickit/v3/musickit.js"
+                data-web-components
+                strategy="beforeInteractive"
+            />
+        </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
       </body>
-      {/* Required for Apple MusicKit (unfortunately) */}
-      <Script src="https://js-cdn.music.apple.com/musickit/v3/musickit.js" data-web-components async />
     </html>
   );
 }
