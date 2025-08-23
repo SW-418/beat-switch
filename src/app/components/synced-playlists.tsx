@@ -12,7 +12,7 @@ const playListClient = new PlaylistClient();
 export default function SyncedPlaylists() {
     const [playlists, setPlaylists] = useState<SyncPlaylist[]>([]);
 
-    useEffect(() => { retrievePlaylists(); }, []);
+    useEffect(() => { (async () => { await retrievePlaylists(); })() }, []);
 
     const retrievePlaylists = async () => {
         setPlaylists(await playListClient.getSyncPlaylists());
