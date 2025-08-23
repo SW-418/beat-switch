@@ -38,11 +38,12 @@ class TransferClient {
                 console.log(song, potentialMappings[song.Song.isrc])
                 try {
                     const mappedSong = SongMapper.map(song, potentialMappings[song.Song.isrc]);
-                    this.playlistClient.mapPlaylistSongMapping(playlist.id, song.id, mappedSong.id.toString())
+                    this.playlistClient.mapPlaylistSong(playlist.id, song.id, mappedSong.id.toString())
                     song.state = SongMappingState.MAPPED;
                     mapped++;
                 } catch (error) {
                     unmapped++;
+                    this.playlistClient.updatePlaylistSongMappingState(playlist.id, song.id, SongMappingState.MANUAL_MAPPING_REQUIRED)
                     song.state = SongMappingState.MANUAL_MAPPING_REQUIRED;
                 }
             });

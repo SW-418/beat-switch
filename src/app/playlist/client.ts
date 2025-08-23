@@ -11,11 +11,26 @@ class PlaylistClient {
         return await response.json();
     }
 
-    async mapPlaylistSongMapping(playlistId: number, songMappingId: number, songMapping: string): Promise<void> {
+    async mapPlaylistSong(playlistId: number, songMappingId: number, songMapping: string): Promise<void> {
         const url = `/api/v1/playlists/${playlistId}/songs/${songMappingId}`;
         const requestBody: PlaylistMappingUpdate = {
             mappedSongId: songMapping,
             songMappingState: SongMappingState.MAPPED,
+        }
+
+        await fetch(url, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+    }
+
+    async updatePlaylistSongMappingState(playlistId: number, songMappingId: number, state: SongMappingState): Promise<void> {
+        const url = `/api/v1/playlists/${playlistId}/songs/${songMappingId}`;
+        const requestBody: PlaylistMappingUpdate = {
+            songMappingState: state
         }
 
         await fetch(url, {
