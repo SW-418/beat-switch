@@ -36,10 +36,6 @@ class PlaylistService {
         await this.updatePlaylistStatus(playlistId, PlaylistSyncState.MAPPING);
     }
 
-    async updatePlaylistToMapped(playlistId: number): Promise<void> {
-        await this.updatePlaylistStatus(playlistId, PlaylistSyncState.MAPPED);
-    }
-
     async getPlaylistTracks(playlistId: number, userId: number, unmappedOnly: boolean): Promise<SongMappingWithSong[]> {
         const playlist: Playlist & { Account: Account } | null = await this.playlistDb.getPlaylistById(playlistId);
         if (!playlist) throw new PlaylistNotFoundError(playlistId);
