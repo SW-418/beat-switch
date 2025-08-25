@@ -16,28 +16,25 @@ class TransferClient {
         if (playlist.status !== 'MAPPING') return;
 
         // TODO: Pagination for this endpoint
-        const url = `/api/v1/playlists/${playlist.id}/songs?unmappedOnly=true`;
+        const url = `/api/v1/playlists/${playlist.id}/songs?states=READY_TO_MAP`;
         const response = await fetch(url);
-        const songs:SongMappingWithSong[] = await response.json();
-
-        // TODO: Probably want enum and use a separate model here for SongMappingWithSong
-        const songsToMap = songs.filter((mapping: SongMappingWithSong) => mapping.state === "READY_TO_MAP");
+        const songsToMap:SongMappingWithSong[] = await response.json();
         let mapped = 0;
         let unmapped = 0;
 
         // Retrieve potential mappings in batches of 50
         for (let i = 0; i < songsToMap.length; i+=50) {
             const batch = songsToMap.slice(i, i + 50);
-            const isrcList = batch.map((song: SongMappingWithSong) => song.Song.isrc);
+            const isrcList = batch.map((song: SongMappingWithSong) => song.song.isrc);
 
             const potentialMappings = await getSongMappingsByISRC(isrcList);
             console.log(`Retrieved ISRC Mappings for ${Object.keys(potentialMappings).length}/${batch.length} songs`)
 
             // TODO: Utilize Record for constant lookup
             batch.forEach((song: SongMappingWithSong) => {
-                console.log(song, potentialMappings[song.Song.isrc])
+                console.log(song, potentialMappings[song.song.isrc])
                 try {
-                    const mappedSong = SongMapper.map(song, potentialMappings[song.Song.isrc]);
+                    const mappedSong = SongMapper.map(song, potentialMappings[song.song.isrc]);
                     this.playlistClient.mapPlaylistSong(playlist.id, song.id, mappedSong.id.toString())
                     song.state = SongMappingState.MAPPED;
                     mapped++;
