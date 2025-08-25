@@ -14,8 +14,8 @@ class SongMappingService {
         return await this.songMappingDb.createSongMappings(tracks, songMap, playlistId);
     }
 
-    async getSongMappings(playlistId: number, unmappedOnly: boolean = false): Promise<SongMappingWithSong[]> {
-        return await this.songMappingDb.getSongMappings(playlistId, unmappedOnly);
+    async getSongMappings(playlistId: number, states: string[] = []): Promise<SongMappingWithSong[]> {
+        return await this.songMappingDb.getSongMappings(playlistId, states);
     }
 
     async updateSongMapping(playlistId: number, songMappingId: number, update: PlaylistMappingUpdate): Promise<void> {

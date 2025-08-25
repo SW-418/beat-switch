@@ -11,10 +11,20 @@ async function GET(request: NextRequest, { params }: { params: Promise<{ playlis
     const userId = Number(request.cookies.get('userId')?.value);
     if (!userId) return NextResponse.json({ message: 'No user id found' }, { status: 401 });
 
-    const unmappedOnly = request.nextUrl.searchParams.get('unmappedOnly') === 'true';
+    const statesParam = request.nextUrl.searchParams.get('states');
+    const states = statesParam ? statesParam.split(',') : [];
+    
+    const validStates = ['READY_TO_MAP', 'MAPPED', 'MANUAL_MAPPING_REQUIRED', 'SKIPPED'];
+    const invalidStates = states.filter(state => !validStates.includes(state));
+    
+    if (invalidStates.length > 0) {
+        return NextResponse.json({ 
+            message: `Invalid states: ${invalidStates.join(', ')}. Valid states are: ${validStates.join(', ')}` 
+        }, { status: 400 });
+    }
 
     try {
-        const tracks = await playlistService.getPlaylistTracks(Number(playlistId), userId, unmappedOnly);
+        const tracks = await playlistService.getPlaylistTracks(Number(playlistId), userId, states);
         return NextResponse.json(tracks);
     } catch (error) {
         switch (error) {

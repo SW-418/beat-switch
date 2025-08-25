@@ -20,7 +20,7 @@ class PlaylistService {
         return await this.playlistDb.getSavedPlaylist(accountId);
     }
 
-    async getUserPlaylists(userId: number): Promise<Playlist[]> {
+    async getUserPlaylists(userId: number): Promise<(Playlist & { mappingCounts: { readyToMap: number, mapped: number, manualMappingRequired: number, skipped: number } })[]> {
         return await this.playlistDb.getUserPlaylists(userId);
     }
 
@@ -36,12 +36,12 @@ class PlaylistService {
         await this.updatePlaylistStatus(playlistId, PlaylistSyncState.MAPPING);
     }
 
-    async getPlaylistTracks(playlistId: number, userId: number, unmappedOnly: boolean): Promise<SongMappingWithSong[]> {
-        const playlist: Playlist & { Account: Account } | null = await this.playlistDb.getPlaylistById(playlistId);
+    async getPlaylistTracks(playlistId: number, userId: number, states: string[]): Promise<SongMappingWithSong[]> {
+        const playlist: Playlist & { account: Account } | null = await this.playlistDb.getPlaylistById(playlistId);
         if (!playlist) throw new PlaylistNotFoundError(playlistId);
-        if (playlist.Account?.userId !== userId) throw new PlaylistUnauthorizedError(userId, playlistId);
+        if (playlist.account?.userId !== userId) throw new PlaylistUnauthorizedError(userId, playlistId);
 
-        return await this.songMappingService.getSongMappings(playlistId, unmappedOnly);
+        return await this.songMappingService.getSongMappings(playlistId, states);
     }
 
     private async updatePlaylistStatus(playlistId: number, status: PlaylistSyncState): Promise<void> {

@@ -18,7 +18,8 @@ async function GET(request: NextRequest) {
     .map(p => ({
         id: p.id,
         name: p.name,
-        status: p.status
+        status: p.status,
+        mappingCounts: p.mappingCounts
     }) satisfies SyncPlaylist);
 
     return NextResponse.json([responsePlaylists[0]]);
