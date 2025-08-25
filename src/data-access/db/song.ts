@@ -29,7 +29,7 @@ class SongDb {
                     isrc: track.isrc,
                     duration: track.duration,
                     hash: hash,
-                    Artists: {
+                    artists: {
                         connect: track.artists.map(artistName => ({
                             name: artistName
                         }))

@@ -17,7 +17,7 @@ export interface SongMapping extends Song {
 
 // TODO: This needs cleaning up badly it's hella confusing
 export type SongMappingWithSong = SongMapping & {
-    Song: {
+    song: {
       id: number;
       name: string;
       artists: Array<{ name: string }>;

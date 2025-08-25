@@ -13,7 +13,7 @@ class AccountDb {
         const account = await this.prisma.account.create({
             data: {
                 accountId,
-                User: {
+                user: {
                     connect: { id: userId }
                 },
                 accountType: {
@@ -27,7 +27,7 @@ class AccountDb {
     async getAccountByUserIdAndType(userId: number, accountType: AccountType): Promise<number | undefined> {
         const account = await this.prisma.account.findFirst({
             where: {
-                User: {
+                user: {
                     id: userId
                 },
                 accountType: {

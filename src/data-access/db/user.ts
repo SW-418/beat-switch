@@ -11,7 +11,7 @@ class UserDb {
     async getUserByAccountId(accountId: string): Promise<number | undefined> {
         const user = await this.prisma.user.findFirst({
             where: {
-                Accounts: {
+                accounts: {
                     some: {
                         accountId
                     }

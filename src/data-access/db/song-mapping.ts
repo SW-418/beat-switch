@@ -49,18 +49,18 @@ class SongMappingDb {
         });
     }
 
-    async getSongMappings(playlistId: number, unmappedOnly: boolean = false): Promise<SongMappingWithSong[]> {
+    async getSongMappings(playlistId: number, states: string[] = []): Promise<SongMappingWithSong[]> {
         return this.prisma.songMapping.findMany({
             where: {
                 originalPlaylistId: playlistId,
-                ...(unmappedOnly ? {syncedServiceId: null} : {})
+                ...(states.length > 0 ? { state: { in: states as SongMappingState[] } } : {})
             },
             include: {
-                Song: {
+                song: {
                     select: {
                         id: true,
                         name: true,
-                        Artists: {
+                        artists: {
                             select: {
                                 name: true
                             }
