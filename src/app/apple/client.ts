@@ -110,13 +110,24 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
     return songMappings;
 }
 
-async function getSongMappingsByNames(artists: string[], songName: string, songAlbum: string): Promise<Song[]> {
+async function getSongMappingsByArtistsNameAndAlbum(artists: string[], songName: string, songAlbum: string): Promise<Song[]> {
+    const artistSearch = artists.join('+');
+
+    return getSongsBySearchTerm(`${artistSearch} ${songName} ${songAlbum}`);
+}
+
+async function getSongMappingsByArtistsAndName(artists: string[], songName: string): Promise<Song[]> {
+    const artistSearch = artists.join('+');
+
+    return await getSongsBySearchTerm(`${artistSearch} ${songName}`);
+}
+
+async function getSongsBySearchTerm(searchTerm: string): Promise<Song[]> {
     const { developerToken, userToken } = getTokens();
     const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/search`, window.location.origin);
-    const artistSearch = artists.join('+');
     url.searchParams.set('types', 'songs');
-    url.searchParams.set('term', `${artistSearch}+${songName}+${songAlbum}`);
-    
+    url.searchParams.set('term', searchTerm);
+
     const response = await fetch(url.toString(), {
         method: 'GET',
         headers: {
@@ -141,11 +152,12 @@ async function getSongMappingsByNames(artists: string[], songName: string, songA
             durationInMillis: song.attributes.durationInMillis
         });
     });
-    
+
     return mappings;
 }
 
-async function addSongsToPlaylist(songs: Track[], appleMusicPlaylistId: string): Promise<void> { 
+
+async function addSongsToPlaylist(songs: Track[], appleMusicPlaylistId: string): Promise<void> {
     const { developerToken, userToken } = getTokens();
     
     const songIds = songs.map(song => {
@@ -210,4 +222,4 @@ function getUserToken(): string {
     return userToken;
 }
 
-export { createPlaylist, getSongsByISRC, getSongMappingsByISRC, getSongMappingsByNames, addSongsToPlaylist };
+export { createPlaylist, getSongsByISRC, getSongMappingsByISRC, getSongMappingsByArtistsNameAndAlbum, getSongMappingsByArtistsAndName, addSongsToPlaylist };

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { SongMappingWithSong } from "@/app/types/song-mapping";
 import { Song } from "@/app/types/song-mapping";
-import { getSongMappingsByNames } from "@/app/apple/client";
+import {getSongMappingsByArtistsAndName, getSongMappingsByArtistsNameAndAlbum} from "@/app/apple/client";
 import PlaylistClient from "@/app/playlist/client";
 
 const playlistClient = new PlaylistClient();
@@ -19,10 +19,44 @@ export default function ManualMapping() {
     const [loading, setLoading] = useState(true);
     const [searching, setSearching] = useState(false);
 
+    // TODO: Pull these out into apple related hooks/contexts
+    const [musicKit, setMusicKit] = useState<typeof window.MusicKit | null>(null);
+    const [isAuthenticatedWithApple, setIsAuthenticatedWithApple] = useState(false);
+
     useEffect(() => {
         if (!playlistId) return;
         fetchSongsNeedingMapping();
     }, [playlistId]);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        if (!window.MusicKit) {
+            console.warn('MusicKit SDK not loaded');
+            return;
+        }
+
+        fetch('/api/v1/apple/token')
+            .then(res => res.json())
+            .then(token => {
+                window.MusicKit.configure({
+                    developerToken: token.token,
+                    app: { name: 'Beat Switch', build: '1.0.0' },
+                });
+            });
+
+        setMusicKit(window.MusicKit);
+    }, []);
+
+    useEffect(() => {
+        if (!musicKit || !musicKit.getInstance()) return;
+    }, [musicKit]);
+
+    async function handleAppleLogin() {
+        if (!musicKit || !musicKit.getInstance()) return;
+        await musicKit.getInstance().authorize();
+        setIsAuthenticatedWithApple(true);
+    }
 
     const fetchSongsNeedingMapping = async () => {
         if (!playlistId) return;
@@ -44,9 +78,19 @@ export default function ManualMapping() {
     const searchForSong = async (song: SongMappingWithSong) => {
         setSearching(true);
         try {
-            console.log(song)
-            const results = await getSongMappingsByNames(song.song.artists.map(a => a.name), song.song.name, song.song.album);
-            setSearchResults(results);
+            const results: Song[] = []
+            results.push(...await getSongMappingsByArtistsNameAndAlbum(song.song.artists.map(a => a.name), song.song.name, song.song.album));
+            results.push(...await getSongMappingsByArtistsAndName(song.song.artists.map(a => a.name), song.song.name));
+            
+            // Remove duplicates based on ISRC using Set for O(1) lookup
+            const seenISRCs = new Set<string>();
+            const uniqueResults = results.filter(song => {
+                if (seenISRCs.has(song.isrc)) return false;
+                seenISRCs.add(song.isrc);
+                return true;
+            });
+            
+            setSearchResults(uniqueResults);
         } catch (error) {
             console.error('Search failed:', error);
         } finally {
@@ -87,7 +131,15 @@ export default function ManualMapping() {
     };
 
     if (loading) return <div className="p-8">Loading...</div>;
-    
+    if (!isAuthenticatedWithApple) return <div className="p-8">
+        <button
+            onClick={handleAppleLogin}
+            className="bg-[#FA2D48] text-white px-6 py-3 rounded-full font-semibold hover:bg-[#FA2D75] transition-colors"
+        >
+            Connect with Apple Music
+        </button>
+    </div>;
+
     if (!playlistId) {
         return <div className="p-8">Please provide a playlist ID</div>;
     }
