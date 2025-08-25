@@ -110,12 +110,12 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
     return songMappings;
 }
 
-async function getSongMappingsByNames(song: Track): Promise<Song[]> {
+async function getSongMappingsByNames(artists: string[], songName: string, songAlbum: string): Promise<Song[]> {
     const { developerToken, userToken } = getTokens();
     const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/search`, window.location.origin);
-    const artistSearch = song.artists.map(artist => artist.name).join('+');
+    const artistSearch = artists.join('+');
     url.searchParams.set('types', 'songs');
-    url.searchParams.set('term', `${artistSearch}+${song.name}+${song.album}`);
+    url.searchParams.set('term', `${artistSearch}+${songName}+${songAlbum}`);
     
     const response = await fetch(url.toString(), {
         method: 'GET',
