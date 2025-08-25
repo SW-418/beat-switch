@@ -8,7 +8,13 @@ declare global {
   }
 }
 
-export function useMusicKit() {
+type MusicKitReturn = {
+    isLoaded: boolean;
+    error: string | null;
+    musicKit: any;
+};
+
+function useMusicKit(): MusicKitReturn {
   const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,3 +60,6 @@ export function useMusicKit() {
 
   return { isLoaded, error, musicKit: window.MusicKit };
 }
+
+export { useMusicKit };
+export type { MusicKitReturn };

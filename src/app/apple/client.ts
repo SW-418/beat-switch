@@ -67,6 +67,7 @@ async function getSongsByISRC(songs: Track[]): Promise<Record<string, string>> {
 
 // Gets potential song mappings in Apple Music by ISRC
 // ISRC codes can return multiple songs, e.g. if a song appears on multiple albums such as compilations
+// TODO: Searching by Song Name + Artist can be effective too
 async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, Song[]>> {
     const batchSize = 20;
     const { developerToken, userToken } = getTokens();
@@ -91,6 +92,24 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
         });
         const mappingResponse = await response.json();
 
+        // Helper function to normalize song names
+        const normalizeSongName = (name: string) => {
+            return name
+                .replace(/\[.*?\]/g, '') // Remove [...] 
+                .replace(/\(.*?\)/g, '') // Remove (...)
+                .replace(/\s*-\s*feat\.?\s+.*$/i, '') // Remove - feat. and everything after
+                .replace(/\bfeat\.?\s+.*$/i, '') // Remove feat. and everything after
+                .replace(/\bft\.?\s+.*$/i, '') // Remove ft. and everything after
+                .trim();
+        };
+
+        // Helper function to normalize album names
+        const normalizeAlbumName = (name: string) => {
+            return name
+                .replace(/\s*-\s*EP$/i, '') // Remove - EP at the end
+                .trim();
+        };
+
         // TODO: Extract to mapping class
         mappingResponse.data.forEach((song: any) => {
             if (!song.attributes.isrc) { console.error(`No ISRC found for song: ${song}`); }
@@ -98,15 +117,71 @@ async function getSongMappingsByISRC(isrcs: string[]): Promise<Record<string, So
             songMappings[song.attributes.isrc].push({
                 id: song.id,
                 isrc: song.attributes.isrc,
-                name: song.attributes.name,
-                albumName: song.attributes.albumName,
+                name: normalizeSongName(song.attributes.name),
+                albumName: normalizeAlbumName(song.attributes.albumName),
                 artistName: song.attributes.artistName,
                 releaseDate: song.attributes.releaseDate,
                 trackNumber: song.attributes.trackNumber,
-                durationInMillis: song.attributes.durationInMillis
+                durationInMillis: song.attributes.durationInMillis,
+                artworkUrl: song.attributes.artwork?.url?.replace('{w}x{h}', '300x300')
             });
         });
     }
+    return songMappings;
+}
+
+async function getSingleSongMappingsByISRC(isrc: string): Promise<Song[]> {
+    const { developerToken, userToken } = getTokens();
+    const songMappings: Song[] = []
+
+    // TODO: Storefront should be configurable
+    const url = new URL(`${APPLE_MUSIC_API_URL}/catalog/CA/songs`, window.location.origin);
+    url.searchParams.set('filter[isrc]', isrc);
+
+    const response = await fetch(url.toString(), {
+        method: 'GET',
+        headers: {
+            'Authorization': `Bearer ${developerToken}`,
+            'Music-User-Token': `${userToken}`,
+            'Content-Type': 'application/json'
+        }
+    });
+    const mappingResponse = await response.json();
+
+    // Helper function to normalize song names
+    const normalizeSongName = (name: string) => {
+        return name
+            .replace(/\[.*?\]/g, '') // Remove [...]
+            .replace(/\(.*?\)/g, '') // Remove (...)
+            .replace(/\s*-\s*feat\.?\s+.*$/i, '') // Remove - feat. and everything after
+            .replace(/\bfeat\.?\s+.*$/i, '') // Remove feat. and everything after
+            .replace(/\bft\.?\s+.*$/i, '') // Remove ft. and everything after
+            .trim();
+    };
+
+    // Helper function to normalize album names
+    const normalizeAlbumName = (name: string) => {
+        return name
+            .replace(/\s*-\s*EP$/i, '') // Remove - EP at the end
+            .trim();
+    };
+
+    // TODO: Extract to mapping class
+    mappingResponse.data.forEach((song: any) => {
+        if (!song.attributes.isrc) { console.error(`No ISRC found for song: ${song}`); }
+        songMappings.push({
+            id: song.id,
+            isrc: song.attributes.isrc,
+            name: normalizeSongName(song.attributes.name),
+            albumName: normalizeAlbumName(song.attributes.albumName),
+            artistName: song.attributes.artistName,
+            releaseDate: song.attributes.releaseDate,
+            trackNumber: song.attributes.trackNumber,
+            durationInMillis: song.attributes.durationInMillis,
+            artworkUrl: song.attributes.artwork?.url?.replace('{w}x{h}', '300x300')
+        });
+    });
+
     return songMappings;
 }
 
@@ -116,10 +191,14 @@ async function getSongMappingsByArtistsNameAndAlbum(artists: string[], songName:
     return getSongsBySearchTerm(`${artistSearch} ${songName} ${songAlbum}`);
 }
 
-async function getSongMappingsByArtistsAndName(artists: string[], songName: string): Promise<Song[]> {
+async function getSongMappingsByNameAndArtists(songName: string, artists: string[]): Promise<Song[]> {
     const artistSearch = artists.join('+');
 
-    return await getSongsBySearchTerm(`${artistSearch} ${songName}`);
+    return await getSongsBySearchTerm(`${songName} ${artistSearch}`);
+}
+
+async function getSongMappingsByName(songName: string): Promise<Song[]> {
+    return await getSongsBySearchTerm(`${songName}`);
 }
 
 async function getSongsBySearchTerm(searchTerm: string): Promise<Song[]> {
@@ -137,19 +216,36 @@ async function getSongsBySearchTerm(searchTerm: string): Promise<Song[]> {
         }
     });
     const searchResponse = await response.json();
-    console.log(searchResponse);
+    // Helper function to normalize song names
+    const normalizeSongName = (name: string) => {
+        return name
+            .replace(/\[.*?\]/g, '') // Remove [...] 
+            .replace(/\(.*?\)/g, '') // Remove (...)
+            .replace(/\s*-\s*feat\.?\s+.*$/i, '') // Remove - feat. and everything after
+            .replace(/\bfeat\.?\s+.*$/i, '') // Remove feat. and everything after
+            .replace(/\bft\.?\s+.*$/i, '') // Remove ft. and everything after
+            .trim();
+    };
+
+    // Helper function to normalize album names
+    const normalizeAlbumName = (name: string) => {
+        return name
+            .replace(/\s*-\s*EP$/i, '') // Remove - EP at the end
+            .trim();
+    };
 
     const mappings: Song[] = [];
     searchResponse?.results?.songs?.data?.forEach((song: any) => {
         mappings.push({
             id: song.id,
             isrc: song.attributes.isrc,
-            name: song.attributes.name,
-            albumName: song.attributes.albumName,
+            name: normalizeSongName(song.attributes.name),
+            albumName: normalizeAlbumName(song.attributes.albumName),
             artistName: song.attributes.artistName,
             releaseDate: song.attributes.releaseDate,
             trackNumber: song.attributes.trackNumber,
-            durationInMillis: song.attributes.durationInMillis
+            durationInMillis: song.attributes.durationInMillis,
+            artworkUrl: song.attributes.artwork?.url?.replace('{w}x{h}', '300x300')
         });
     });
 
@@ -222,4 +318,4 @@ function getUserToken(): string {
     return userToken;
 }
 
-export { createPlaylist, getSongsByISRC, getSongMappingsByISRC, getSongMappingsByArtistsNameAndAlbum, getSongMappingsByArtistsAndName, addSongsToPlaylist };
+export { createPlaylist, getSongsByISRC, getSongMappingsByISRC, getSingleSongMappingsByISRC, getSongMappingsByArtistsNameAndAlbum, getSongMappingsByNameAndArtists, getSongMappingsByName, getSongsBySearchTerm, addSongsToPlaylist };

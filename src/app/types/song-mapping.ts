@@ -9,6 +9,7 @@ export interface Song {
     releaseDate: string;
     trackNumber: number;
     durationInMillis: number;
+    artworkUrl?: string;
 }
 
 export interface SongMapping extends Song {

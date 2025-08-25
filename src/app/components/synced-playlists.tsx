@@ -22,6 +22,10 @@ export default function SyncedPlaylists() {
         transferClient.mapPlaylistSongs(playlist);
     }
 
+    const transferPlaylist = (playlist: SyncPlaylist) => {
+        transferClient.transferPlaylist(playlist);
+    }
+
     return (
         <div className="w-full transition-all duration-300 ease-in-out mx-auto bg-gray-50 text-gray-800 p-4 rounded-xl shadow-lg">
           <div className="overflow-x-auto">
@@ -64,6 +68,14 @@ export default function SyncedPlaylists() {
                               className="bg-orange-500 text-white px-3 py-2 rounded text-sm hover:bg-orange-600 w-24"
                             >
                               Manual Map
+                            </button>
+                          )}
+                          {playlist.mappingCounts.readyToMap === 0 && playlist.mappingCounts.manualMappingRequired === 0 && (playlist.mappingCounts.mapped > 0 || playlist.mappingCounts.skipped > 0) && (
+                            <button
+                              onClick={() => transferPlaylist(playlist)}
+                              className="bg-green-500 text-white px-3 py-2 rounded text-sm hover:bg-green-600 w-24"
+                            >
+                              Transfer Now
                             </button>
                           )}
                         </div>

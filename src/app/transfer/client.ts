@@ -50,6 +50,20 @@ class TransferClient {
         console.log(`Mapped ${mapped}/${songsToMap.length} songs`)
         console.log(`Manual mapping needed for ${unmapped}/${songsToMap.length} songs`)
     }
+
+    async transferPlaylist(playlist: SyncPlaylist) {
+        // Get all mapped songs for the playlist
+        const url = `/api/v1/playlists/${playlist.id}/songs?states=MAPPED`;
+        const response = await fetch(url);
+        const mappedSongs: SongMappingWithSong[] = await response.json();
+        
+        console.log(`Retrieved ${mappedSongs.length} mapped songs for transfer`);
+        
+        // TODO: Implement the actual transfer logic here
+        // This should create the playlist in Apple Music and add the mapped songs
+        
+        return mappedSongs;
+    }
 }
 
 export default TransferClient;
